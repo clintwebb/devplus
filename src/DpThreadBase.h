@@ -2,6 +2,9 @@
 //  CJDJ Creations
 //  DevPlus C++ Library.
 //
+//  Version:    0.1.47
+//  Date:       **current**
+//  
 /***************************************************************************
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
  *   devplus@cjdj.org                                                      *
@@ -47,54 +50,46 @@
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_THREADBASE_H
+#define __DP_THREADBASE_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
-
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// DpThreadBase
+//
+//  This class contains some common functionality to any class that required 
+//  some thread operations.   
+//------------------------------------------------------------------------------
+
+
+#ifdef __GNUC__
+	#include <pthread.h>
 #endif
 
 
+#ifndef DWORD
+	#define DWORD unsigned long
+#endif
 
 
+class DpThreadBase 
+{
+    public:
+        DpThreadBase();
+        virtual ~DpThreadBase();
+        
+    protected:
+        #ifdef __GNUC__
+            void Sleep(DWORD dTime);
+        #else
+            void Sleep(DWORD dTime) { ::Sleep(dTime); }
+        #endif
+
+    
+    private:
+};
 
 
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H
+#endif

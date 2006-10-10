@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,83 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_MAIN_H
+#define __DP_MAIN_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
-
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
+#include <DpArgs.h>
+#include <DpLock.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// DpMain can be used to provide a common structure to applications.  It 
+// provides a method to start and stop daemons in a controlled manner, and also 
+// provides support for run-thru applications.   
+
+
+#ifndef DWORD
+	#define DWORD unsigned long
 #endif
 
 
+struct DpTimerStruct 
+{
+	int nTimerID;	// ID of the timer.  0 indicates timer has been stopped.
+	DWORD nTime;	// in miliseconds.  0 indicates timer has been stopped.
+	DWORD nLeft;	// time in miliseconds that is left before this timer is triggered again.
+};
+
+class DpMain : public DpThreadBase 
+{
+    // Methods, functions.
+    public:
+        DpMain();
+        virtual ~DpMain();
+
+		static void HandleSig(int signo);
+		int ProcessAll(void);
+		void Shutdown(int nReturn=0);
+		int SetTimer(DWORD nMiliSecs);
+		DWORD ProcessTimers(DWORD nTime);
+		
+    protected:
+		virtual void OnStartup(void);
+		virtual void OnShutdown(void);
+		virtual void OnCtrlBreak(void);
+		virtual void OnTimer(int nTimerID);
+		
+		virtual void InitRandom(void);
+
+
+    private:
+		void Signal(int signo);
+		
+		
+    // Data, internal objects.
+    public:
+    protected:
+    private:
+		
+		static int _nInstances;
+		static int _nReturn;
+		static bool _bShutdown;
+		static DpMain **_pObjList;
+		static int _nObjCount;
+		int _nObjID;
+		
+		struct DpTimerStruct *_pTimers;
+		int _nTimers;
+		static DWORD _nLastWait;
+				
+		static DpLock _Lock;
+		
+};
 
 
 
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H
+#endif

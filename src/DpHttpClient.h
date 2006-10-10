@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,69 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_HTTPCLIENT_H
+#define __DP_HTTPCLIENT_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
-
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
+#include <DpSocket.h>
+#include <DpDataQueue.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// CJW: This class provides and easy to use and intuitive HTTP interface client 
+//      object.
+//------------------------------------------------------------------------------
+
+class DpHttpClient
+{
+    // functions, and methods.
+    public:
+        DpHttpClient();
+        virtual ~DpHttpClient();
+
+		void SetURL(char *url);
+// 		void SetMethod(char *method);
+		void AddParam(char *name, char *value);
+		void AddParam(char *name, int value);
+		char * GetURL(void);
+				
+        int Get(char *url=NULL);
+        int GetLength(void) { return(_nLength); }
+        int GetCode(void)   { return(_nCode);   }
+		DpDataQueue * GetBody();
+		
+		char * Encode(char *str);
+
+    protected:
+
+    private:
+        bool ParseUrl(void);
+        void BuildHeader(void);
+        bool SendHeader(void);
+        bool ReceiveHeader(void); 
+        void Sleep(void);
+
+    // data and objects.
+    public:
+
+    protected:
+
+    private:
+        DpSocket _xSocket;
+        DpDataQueue _xQueue;
+        char *_szUrl;
+        char *_szHeaders;
+		char *_pBody;
+        char  _szHost[DP_MAX_HOST_LEN+1];
+		int   _nPort;
+		int   _nCode, _nLength;
+};
+
+
+
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H

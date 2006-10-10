@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,59 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_DATAQUEUE_H
+#define __DP_DATAQUEUE_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
+#include <DevPlus.h>
+
+//-----------------------------------------------------------------------------
+// DataQueue.h: interface for the CDataQueue class.
+//-----------------------------------------------------------------------------
+//  
+//      This is a simple implementation of a FIFO queue.  It uses single-char 
+//      elements and allows you to add, view and remove data from the queue.  
+//      To edit data in the queue, you need to get the data, copy it somewhere, 
+//      edit it, clear the queue and then add the data back.
+//
+//      Because of the way this class is built, it can be used for both stack 
+//      and FIFO (first in, first out) queues.  So if you are using it as a FIFO 
+//      queue, make sure to use Add/Pop functions.  For a stack, use Push/Pop.  
+//      Operations can be used interminably.  That means that if you pop data 
+//      off, and want it put back on, you can push it.
+//
+//-----------------------------------------------------------------------------
+class DpDataQueue  
+{
+    public:
+        DpDataQueue();
+        virtual ~DpDataQueue();
+
+        char * Pop(int nLength);
+		
+        void Push(char *data, int len);     // inserts chars to the top of the queue.
+        void Push(char ch);                 // inserts a single char to the top of the queue.
+        void Add(char *data, int len);      // add chars to the bottom of the queue.
+
+        int Length();                       // returns number of chars in the queue.
+        void Remove(int cnt);               // remove 'cnt' number of elements from the top of the queue (presumably because you processed them with the pointer returned from Data()
+        void Clear();                       // clear all the data in the queue... frees the memory and resets the lengths.
+        bool IsEmpty();                     // returns true if the queue is empty.
         
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
+        int FindChar(char ch);
 
-        
-  ------------------------------------------------------------------------------
-*/
+        int Print(char *fmt, ...);
+        char *GetLine(void);
 
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
+    private:
+        int _nLength;                      // number of chars in the queue.
+        char * _pBuffer;                   // chars in the queue
+};
 
 
-//------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H

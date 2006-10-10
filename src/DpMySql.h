@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,91 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_MYSQL_H
+#define __DP_MYSQL_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
+#include <stdlib.h>
+#include <mysql/mysql.h>
+
+#include <DevPlus.h>
+#include <DpLock.h>
+
+
+class DpSqlDB
+{
+	public:
+		DpSqlDB();
+		virtual ~DpSqlDB();
         
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
+		virtual bool Connect(char *server, char *user, char *password, char *db=NULL) = 0;
+		virtual bool Use(char *db) = 0;
+		virtual char * Quote(char *str, unsigned int length) = 0;
+		virtual bool Execute(char *query, ...) = 0;
+		virtual bool ExecuteStr(char *query) = 0;
 
+		virtual void ClientLock(void);
+		virtual void ClientUnlock(void);
         
-  ------------------------------------------------------------------------------
-*/
+	protected:
+		virtual void WriteLock(void);
+		virtual void ReadLock(void);
+		virtual void Unlock(void);
 
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
+	private:
+        DpLock _xLock;
+};
 
 
-//------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+
+
+class DpMySqlDB : public DpSqlDB
+{
+    public:
+        DpMySqlDB();
+        virtual ~DpMySqlDB();
+
+        DpMySqlDB* Spawn();
+        void Unspawn();
+        void AttachParent(DpMySqlDB *pParent);
+        
+        bool Connect(char *server, char *user, char *password, char *db=NULL);
+        bool Use(char *db);
+        char * Quote(char *str, unsigned int length=0);
+        bool Execute(char *query, ...);
+        bool ExecuteStr(char *query);
+        bool NextRow(void);
+        bool GetData(char *field, unsigned int *value);
+        bool GetData(char *field, int *value);
+        bool GetData(char *field, char *value, int buflen);
+        void LockTables(char *szTables);
+        void UnlockTables(void);
+
+        my_ulonglong GetInsertID();
+
+        MYSQL * GetHandle(void);
+        
+    protected:
+        virtual void ClientLock(void);
+        virtual void ClientUnlock(void);
+        
+    private:
+        MYSQL *_hSql;
+        DpMySqlDB *_pParent;
+        int _nChildren;
+        my_ulonglong _nInsertID;
+        MYSQL_RES *_pResult;
+        unsigned int _nFields;
+        MYSQL_FIELD *_pFieldList;
+        unsigned int _nLastErr;
+        MYSQL_ROW _Row;
+        bool _bTableLock;
+};
+
+
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H
