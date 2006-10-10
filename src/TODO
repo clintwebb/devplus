@@ -1,0 +1,13 @@
+ 
+- Modify the DpDataQueue object to actually store things in chunks so that 
+  when it is pulling data out of the queue when there is a LOT of data in 
+  it, it can be at least somewhat efficient.  The rotating queue that 
+  expands would probably work.  A linked list of queue chunks could be 
+  used.  If a smaller peice is needed than what is in the first chunk, then 
+  grab that peice of data and resize the first chunk.  When inserting data, 
+  make a copy of the chunk of data being added, and then add that pointer to 
+  the end of the list.  This should hopefully improve performance a bit when 
+  using the queue for high-speed data communications.
+  
+  
+  
