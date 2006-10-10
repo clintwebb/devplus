@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,128 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_HTTPSERVER_H
+#define __DP_HTTPSERVER_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
-
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
+#include <DpServerInterface.h>
+#include <DpSocket.h>
+#include <DpLock.h>
+#include <DpCgi.h>
+#include <DpDataQueue.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// Start a server listening and responding to either page requests, or respond 
+// directly to requests.
+
+#define DP_HTTP_STATE_NEW		0
+#define DP_HTTP_STATE_READY		1
+#define DP_HTTP_STATE_DELETE	2
+#define DP_HTTP_STATE_REPLY		3
+
+class DpHttpServerConnection : public DpThreadObject
+{
+	private:
+		int _nState;
+		DpSocket *_pSocket;
+		DpLock _Lock;
+		char *_szUrl;
+		char *_szHeaders;
+		char *_szData;
+		
+		DpCgiFormData *_pForm;
+		int _nCode;
+		DpDataQueue *_pQueue;
+		
+		bool ReceiveHeaders(void);
+		bool SendReply(void);
+	
+		
+	protected:
+		virtual void OnThreadRun();
+		
+	public:
+		DpHttpServerConnection();
+		virtual ~DpHttpServerConnection();
+		
+		void Accept(SOCKET nSocket);
+		void Reply(int nCode, DpDataQueue *pQueue);
+		
+		int GetState(void) {
+			int i;	
+			_Lock.Lock();
+			i = _nState;
+			_Lock.Unlock();
+			return(i);
+		}
+		
+		char *GetUrl(void)
+		{
+			char *s;
+			_Lock.Lock();
+			s = _szUrl;
+			_Lock.Unlock();
+			return(s);
+		}
+
+		char *GetHeaders(void)
+		{
+			char *s;
+			_Lock.Lock();
+			s = _szHeaders;
+			_Lock.Unlock();
+			return(s);
+		}
+
+		char *GetData(void)
+		{
+			char *s;
+			_Lock.Lock();
+			s = _szData;
+			_Lock.Unlock();
+			return(s);
+		}
+
+		DpCgiFormData *GetForm(void)
+		{
+			DpCgiFormData *s;
+			_Lock.Lock();
+			s = _pForm;
+			_Lock.Unlock();
+			return(s);
+		}
+
+};
+
+
+class DpHttpServer : public DpServerInterface
+{
+	private:
+		DpHttpServerConnection **_pList;
+		int _nItems;
+		DpLock _Lock;
+		
+		void AddNode(DpHttpServerConnection *pNew);
+		
+	public:
+		DpHttpServer();
+		virtual ~DpHttpServer();
+		
+	protected:
+		virtual void OnAccept(SOCKET nSocket);
+		virtual int OnPage(char *szUrl, char *szHeaders, char *szData, DpCgiFormData *pForm, DpDataQueue *pQueue) = 0;
+		virtual void OnIdle(void);
+
+		
+};
+
+
+
+
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H

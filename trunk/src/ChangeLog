@@ -3,6 +3,16 @@ VERSIONS
 
 This file lists all the changes to each version.  It includes the numerical version number that is used within the source code, and the version label (tag), as well as the date of release if it is known.
 
+
+200 	0.2.00		October 10, 2006.
+ -  Seperating objects into seperate files that get included, and compiled 
+ 	as an object that is imported into the project at link time.  Linux 
+ 	centric, have not made an attempt to make it work for windows, but that 
+ 	will come whenever I have to write something for the windows environment.
+ 	
+ 	  ** No compatibility with previous versions is maintained, although the 
+ 	  ** objects themselves wont have changed much.
+
 147		0.1.47		September 7, 2006.
  -  Removed test printf statement from DpHttpServer that happens whenever 
  	a new connection is received.

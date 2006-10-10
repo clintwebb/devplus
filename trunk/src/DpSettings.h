@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,78 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_SETTINGS_H
+#define __DP_SETTINGS_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
 
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
+#include <DpLock.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// DpSettings - generic global settings holder.  Useful for accessing settings
+// information from multiple threads.  Not really designed to transfer transient
+// information from one thread to another.
+//------------------------------------------------------------------------------
+
+enum SettingType {
+    TYPE_EMPTY,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    TYPE_CHAR,
+    TYPE_UNSIGNED,
+    TYPE_PTR
+};
+
+
+union SettingsUnion {
+    void *pointer;
+    char *string;
+    int  integer;
+    unsigned int uint;
+    char ch;
+};
+
+
+struct SettingsData {
+    enum SettingType eType;
+    union SettingsUnion *pData;
+    int nItems;
+    char *szName;
+};  
+
+
+class DpSettings : public DpLock
+{
+    public:
+        DpSettings();
+        virtual ~DpSettings();
+        
+        bool Set(char *name, char *value, int index=0);
+        bool Set(char *name, int   value, int index=0);
+        
+        bool Get(char *name, char  *value, int index=0);
+        bool Get(char *name, char **value, int index=0);
+        bool Get(char *name, int   *value, int index=0);
+        
+    protected:
+    
+    private:
+        static int _nInstances;
+        static int _nItems;
+        static SettingsData *_pDataList;
+        
+        int FindName(char *name);
+        int CreateName(char *name);
+        bool VerifyIndex(int entry, int index);
+        void CreateIndex(int entry, int index);
+
+};
+
+
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H

@@ -1,10 +1,11 @@
 //------------------------------------------------------------------------------
 //  CJDJ Creations
 //  DevPlus C++ Library.
-//
+//  
 /***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,59 +43,68 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
  
-/*
-    Description:
-        DevPlus is a bunch of classes that maintain a sensible interface as 
-        closely as possible throughout the various classes and functions.  It 
-        is designed to be a powerful substitute or enhancement to the various 
-        incompatible methods within MFC and other libraries.  
 
-        DevPlus is intended to be compiled into the application, rather than 
-        linked in.  This has some added advantages.  Of course, if you wanted 
-        you could create a library out of it and link it in however you want.
+#ifndef __DP_SERVERINTERFACE_H
+#define __DP_SERVERINTERFACE_H
 
-        DevPlus is provided as Source Code, but that does not mean that it is 
-        without limitations.  DevPlus can only be used in accordance with the 
-        licence you choose.
-        
-    Versions
-        See the ChangeLog file for a description of all versions and changes.
-
-        
-  ------------------------------------------------------------------------------
-*/
-
-#ifndef __DEVPLUS_H
-#define __DEVPLUS_H
-
+#include <DevPlus.h>
+#include <DpSocket.h>
+#include <DpThreadObject.h>
 
 //------------------------------------------------------------------------------
-// Provide our assertion mapping function.  This would also depend eventually on 
-// what compiler we are using to compile with.  VC++ uses a graphical assertion, 
-// where DigitalMars provides an application stop assertion.
-#ifndef ASSERT 
-	#include <assert.h>
-	#define ASSERT(x) assert(x);
+// DpServerInterface: interface for the DpServerInterface class.
+//------------------------------------------------------------------------------
+//  
+//      This object will be the interface to the server that the clients 
+//      connect to.  The server then maintains a list of clients that are 
+//      currently connected.  
+//
+//      Does not contain a static data store, so can be instantiated multiple 
+//      times for different ports.  Will create the same client threads 
+//      however.
+//
+//      Intended to be used as a base class for an object that will actually 
+//      process the connection.  In fact, it must be derived and cannot be 
+//      instantiated by itself.
+//
+//------------------------------------------------------------------------------
+
+
+class DpServerInterface : public DpThreadObject
+{
+
+	public:
+		DpServerInterface();                    	// Constructor.
+		virtual ~DpServerInterface();           	// Deconstructor.
+	
+	public:
+		virtual void OnAccept(SOCKET nSocket) = 0;  // Function that will handle the new connection received 
+													// on the socket.   Must be resolved for class to be
+													// instantiated.
+
+		virtual void OnIdle(void);                  // Called on each cycle when nothing was accepted.
+	
+	public:
+		virtual bool Listen(int nPort);             // Start listening on a socket.
+		
+	protected:
+		virtual void OnThreadRun(void); 		   // Worker thread that processes the incoming connections.
+
+	protected:
+		virtual void AddObject(DpThreadObject *pObject);
+		virtual void CheckList(void);
+	
+	private:
+		DpSocket        _xSocket;
+		DpThreadObject **_pList;
+		int              _nItems;
+		
+};
+
+
 #endif
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-// CJW: Global defines go in here that affect the over-all compilation of all 
-// 		DevPlus components.
-
-
-#define DP_MAX_PACKET_SIZE 4096
-#define DP_MAX_HOST_LEN 255
-
-
-
-#endif  // __DEVPLUS_H
