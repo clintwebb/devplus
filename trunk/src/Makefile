@@ -1,7 +1,9 @@
-all: libdevplus.a libdevplus-thread.a libdevplus-main.a libdevplus-sqlite.a 
+LIBS=libdevplus.a libdevplus-thread.a libdevplus-main.a libdevplus-sqlite.a 
 # libdevplus-mysql.a 
 
-# 	DpCgi DpHttpClient DpLock DpMySql DpServerInterface DpSqlite3 DpThreadBase DpArgs DpDataQueue DpHttpServer DpLogger DpPipeCommand DpSettings DpString DpThreadObject DpBase64 DpDataServer DpIniFile DpMain DpReadWriteLock DpSocket DpTextTools DpWinService 
+
+all: $(LIBS)
+
 
 H_DevPlus=DevPlus.h
 
@@ -133,13 +135,16 @@ clean:
 	@-rm libdevplus*.a
 
 
-install: libdevplus-thread.a DevPlus.cpp DevPlus.h COPYING AUTHORS docs/DevPlus-DevGuide.pdf
+install: $(LIBS) COPYING AUTHORS docs/DevPlus-DevGuide.pdf
 	-mkdir $(PREFIX)/usr/src/DevPlus
 	-mkdir $(PREFIX)/usr/src/DevPlus/docs
-	mv libdevplus-thread.a $(PREFIX)/usr/lib
-	cp DevPlus.h $(PREFIX)/usr/include
-	cp DevPlus.h $(PREFIX)/usr/src/DevPlus
-	cp DevPlus.cpp $(PREFIX)/usr/src/DevPlus
+	cp libdevplus.a $(PREFIX)/usr/lib
+	cp libdevplus-thread.a $(PREFIX)/usr/lib
+	cp libdevplus-main.a $(PREFIX)/usr/lib
+	cp libdevplus-sqlite.a $(PREFIX)/usr/lib
+	cp *.h $(PREFIX)/usr/include
+	cp *.h $(PREFIX)/usr/src/DevPlus
+	cp *.cpp $(PREFIX)/usr/src/DevPlus
 	cp COPYING $(PREFIX)/usr/src/DevPlus
 	cp AUTHORS $(PREFIX)/usr/src/DevPlus
 	cp docs/DevPlus-DevGuide.pdf $(PREFIX)/usr/src/DevPlus/docs

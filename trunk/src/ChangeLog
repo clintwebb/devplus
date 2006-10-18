@@ -3,6 +3,10 @@ VERSIONS
 
 This file lists all the changes to each version.  It includes the numerical version number that is used within the source code, and the version label (tag), as well as the date of release if it is known.
 
+210		0.2.10		October 17, 2006.
+ -  Provide functionality in DpLogger.  It will basically write to a log file 
+    whenever it is told to, without running in another thread.  It will block 
+    until the log is written.  		
 
 200 	0.2.00		October 10, 2006.
  -  Seperating objects into seperate files that get included, and compiled 
