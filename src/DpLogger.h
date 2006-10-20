@@ -53,14 +53,13 @@
 #define __DP_LOGGER_H
 
 #include <DevPlus.h>
-#include <DpThreadObject.h>
 
 //------------------------------------------------------------------------------
 // DpLogger - This class provides a comprehensive method to log test and result 
 //            data to log files, consoles, etc.
 //------------------------------------------------------------------------------
 
-class DpLogger : public DpThreadObject
+class DpLogger
 {
     public:
         DpLogger();
