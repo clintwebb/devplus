@@ -55,7 +55,7 @@
 #include <DevPlus.h>
 #include <DpSqlite3.h>
 #include <DpThreadObject.h>
-
+#include <DpLock.h>
 
 struct DpRequestResult 
 { 
