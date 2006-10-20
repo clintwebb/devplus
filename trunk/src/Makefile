@@ -22,7 +22,7 @@ H_Settings=DpSettings.h $(H_Lock) $(H_DevPlus)
 H_ThreadObject=DpThreadObject.h $(H_Lock) $(H_DevPlus)
 H_ServerInterface=DpServerInterface.h $(H_Socket) $(H_ThreadObject) $(H_DevPlus)
 H_HttpServer=DpHttpServer.h $(H_ServerInterface) $(H_Socket) $(H_Lock) $(H_Cgi) $(H_DataQueue) $(H_DevPlus)
-H_Logger=DpLogger.h $(H_ThreadObject) $(H_DevPlus)
+H_Logger=DpLogger.h $(H_DevPlus)
 H_PipeCommand=DpPipeCommand.h $(H_DevPlus)
 H_ReadWriteLock=DpReadWriteLock.h $(H_Lock) $(H_DevPlus)
 

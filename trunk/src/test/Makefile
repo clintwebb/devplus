@@ -1,11 +1,10 @@
 # makefile
 
-DEVPLUS=-I. -I.. -D_EXCLUDE_INI -D_EXCLUDE_TEXTTOOLS -D_EXCLUDE_DB_MYSQL 
-# DEVPLUS=-I. -D_EXCLUDE_DATAQUEUE -D_EXCLUDE_DB_MYSQL -D_EXCLUDE_INI -DDP_SINGLETHREAD -D_EXCLUDE_SOCKET -D_EXCLUDE_TEXTTOOLS
+DEVPLUS=-I. -I.. 
 
 all: test-httpserver test-sqlite test-httpclient
 
-LIBS=-lpthread -lsqlite3
+LIBS=-lpthread -lsqlite3 -ldevplus -ldevplus-thread -ldevplus-sqlite
 
 
 test-httpserver: httpserver.o DevPlus.o
