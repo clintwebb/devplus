@@ -30,7 +30,7 @@ H_Args=DpArgs.h $(H_DevPlus)
 H_Main=DpMain.h $(H_Args) $(H_Lock) $(H_DevPlus)
 
 H_Sqlite3=DpSqlite3.h $(H_DevPlus)
-H_DataServer=DpDataServer.h $(H_Sqlite3) $(H_ThreadObject) $(H_DevPlus)
+H_DataServer=DpDataServer.h $(H_Sqlite3) $(H_ThreadObject) $(H_Lock) $(H_DevPlus)
 
 H_MySql=DpMySql.h $(H_Lock) $(H_DevPlus)
 
