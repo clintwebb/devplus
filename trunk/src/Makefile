@@ -27,7 +27,7 @@ H_PipeCommand=DpPipeCommand.h $(H_DevPlus)
 H_ReadWriteLock=DpReadWriteLock.h $(H_Lock) $(H_DevPlus)
 
 H_Args=DpArgs.h $(H_DevPlus)
-H_Main=DpMain.h $(H_Args) $(H_Lock) $(H_DevPlus)
+H_Main=DpMain.h $(H_Lock) $(H_DevPlus)
 
 H_Sqlite3=DpSqlite3.h $(H_DevPlus)
 H_DataServer=DpDataServer.h $(H_Sqlite3) $(H_ThreadObject) $(H_Lock) $(H_DevPlus)
@@ -93,7 +93,7 @@ DpLock.o: DpLock.cpp $(H_Lock)
 DpLogger.o: DpLogger.cpp $(H_Logger)
 	gcc -c DpLogger.cpp -I. -o $@
 
-DpMain.o: DpMain.cpp $(H_Main)
+DpMain.o: DpMain.cpp $(H_Main) $(H_Args)
 	gcc -c DpMain.cpp -I. -o $@
 
 DpMySql.o: DpMySql.cpp $(H_MySql)

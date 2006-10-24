@@ -44,25 +44,27 @@
 #include <sys/time.h>
 
 #include <DpMain.h>
+#include <DpArgs.h>
 
 
 
 
+//------------------------------------------------------------------------------
+// CJW: Static member variables.  These need to be defined and initialised.
+DpLock   DpMain::_Lock;
+int      DpMain::_nInstances = 0;
+bool     DpMain::_bShutdown  = false;
+int      DpMain::_nReturn    = 0;
+DpMain **DpMain::_pObjList   = NULL;
+int      DpMain::_nObjCount  = 0;
+DWORD    DpMain::_nLastWait  = 0;
 
-DpLock DpMain::_Lock;
-int  DpMain::_nInstances = 0;
-bool DpMain::_bShutdown = false;
-int  DpMain::_nReturn = 0;
-DpMain **DpMain::_pObjList = NULL;
-int  DpMain::_nObjCount = 0;
-DWORD DpMain::_nLastWait = 0;
+
 
 //------------------------------------------------------------------------------
 // CJW: Initialise the Object.
 DpMain::DpMain()
 {
-// 	printf("DpMain::DpMain() %x\n", this);
-
 	_Lock.Lock();
 	
 	ASSERT(_nInstances >= 0);
@@ -93,8 +95,6 @@ DpMain::~DpMain()
 {
 	_Lock.Lock();
 	
-// 	printf("DpMain::~DpMain() - start. id=%d,%x=%x\n", _nObjID, _pObjList[_nObjID], this);
-	
 	ASSERT(_nInstances > 0);
 	_nInstances --;
 	ASSERT(_nInstances >= 0);
@@ -121,8 +121,6 @@ DpMain::~DpMain()
 	_nTimers = 0;
 	
 	_Lock.Unlock();
-
-// 	printf("DpMain::~DpMain() - end\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -226,8 +224,6 @@ int DpMain::ProcessAll(void)
 	DWORD nWait, nNext;
 	int nReturn = 0;
 	
-// 	printf("DpMain::ProcessAll() - Start\n");
-	
 	// set up our signal handlers.
 	signal(SIGINT, &DpMain::HandleSig);
 
@@ -283,8 +279,6 @@ int DpMain::ProcessAll(void)
 	}
 	_Lock.Unlock();
 	
-// 	printf("DpMain::ProcessAll() - Exit\n");
-	
 	return(nReturn);
 }
 
@@ -330,7 +324,6 @@ DWORD DpMain::ProcessTimers(DWORD nLast)
 // CJW: This virtual function will be called when the main object starts up.
 void DpMain::OnStartup(void)
 {
-// 	printf("DpMain::OnStartup()\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -338,7 +331,6 @@ void DpMain::OnStartup(void)
 // 		down.
 void DpMain::OnShutdown(void) 
 {
-// 	printf("DpMain::OnShutdown()\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -348,14 +340,12 @@ void DpMain::OnCtrlBreak(void)
 	// *** Here we need to actually set things in motion so that we quit.
 	_Lock.Lock();
 
-// 	printf("DpMain::OnCtrlBreak()\n");
 	
 	_Lock.Unlock();
 }
 
 void DpMain::OnTimer(int nTimerID)
 {
-// 	printf("DpMain::OnTimer(%d)\n", nTimerID);
 	// Why set a timer if your not going to process it?
 	ASSERT(0);
 }
@@ -371,8 +361,6 @@ int main(int argc, char **argv)
 	DpMain *pMain;
 	int nReturn = 0;
 	
-// 	printf("Main - Start\n");
-	
 	pArgs = new DpArgs;
 	ASSERT(pArgs != NULL);
 	pArgs->Process(argc, argv);
@@ -383,7 +371,6 @@ int main(int argc, char **argv)
 	nReturn = pMain->ProcessAll();
 	delete pMain;
 	
-// 	printf("Main - Exit\n");
 	return(nReturn);
 }
 
