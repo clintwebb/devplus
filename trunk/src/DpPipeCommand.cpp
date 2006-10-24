@@ -37,7 +37,61 @@
 #endif
 //-----------------------------------------------------------------------------
 
-#include <DevPlus.h>
+#include <DpPipeCommand.h>
 
+
+//-----------------------------------------------------------------------------
+// CJW: Constructor.  
+DpPipeCommand::DpPipeCommand()
+{
+	Lock();
+	_bStop = false;
+	Unlock();
+}
+
+
+//-----------------------------------------------------------------------------
+// CJW: Deconstructor.  
+DpPipeCommand::~DpPipeCommand()
+{
+	Lock();
+	ASSERT(_bStop == false);
+	_bStop = true;
+	Unlock();
+	
+	// **** How do we signal to the thread that it needs to break out of the block waiting for the file?
+	WaitForThread();
+}
+
+
+//-----------------------------------------------------------------------------
+// CJW: We have virtualised this function in case we need to add any 
+// 		functionality to it.  Originally it was planned that the pipe path 
+// 		would be specified and then Start() issued.  But instead, we will just 
+// 		use a single Pipe() function that passes in the pathname and that 
+// 		starts the thread....
+void DpPipeCommand::Start(void)
+{
+	DpThreadObject::Start();
+}
+
+
+//-----------------------------------------------------------------------------
+// CJW: This is the thread.  Basically it attempts to open the piped file. 
+// 		When it opens, it will read all teh data from it, and then close it.
+void DpPipeCommand::OnThreadRun(void)
+{
+	Lock();
+	while(_bStop == false) {
+		Unlock();
+		
+		// attempt to open the named-pipe file.
+		// read in all the data for the name-pipe file.
+		// close the file-handle.		
+		
+		Lock();
+	}
+	Unlock();
+}
 
 

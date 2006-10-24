@@ -6,7 +6,10 @@ This file lists all the changes to each version.  It includes the numerical vers
 210		0.2.10		October 17, 2006.
  -  Provide functionality in DpLogger.  It will basically write to a log file 
     whenever it is told to, without running in another thread.  It will block 
-    until the log is written.  		
+    until the log is written.
+ -  Modified DpThreadObject::Start() so that it is virtual.  We can possibly 
+    have child-classes that need to do something before actually starting the 
+    thread process.   		
 
 200 	0.2.00		October 10, 2006.
  -  Seperating objects into seperate files that get included, and compiled 
