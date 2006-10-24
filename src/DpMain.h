@@ -53,7 +53,6 @@
 #define __DP_MAIN_H
 
 #include <DevPlus.h>
-#include <DpArgs.h>
 #include <DpLock.h>
 
 //------------------------------------------------------------------------------
