@@ -53,14 +53,30 @@
 #define __DP_PIPE_COMMAND_H
 
 #include <DevPlus.h>
+#include <DpThreadObject.h>
 
 //------------------------------------------------------------------------------
 // This object is used to   
 
-class DpPipeCommand 
+class DpPipeCommand : public DpThreadObject
 {
+
+	private:
+		bool _bStop;
+
+	public:
+		DpPipeCommand();
+		virtual ~DpPipeCommand();
+
+
 	private:
 	protected:
+	
+        virtual void Start(void);
+        virtual void OnThreadRun(void);
+
+		virtual void OnCommand(char *pData) = 0;
+	
 	public:
 		
 };

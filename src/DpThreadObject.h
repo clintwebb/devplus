@@ -119,7 +119,7 @@ class DpThreadObject : public DpLock
 		}
 		
     protected:
-        void Start(void);
+        virtual void Start(void);
 
         virtual void OnThreadStart(void);
         virtual void OnThreadStop(void);
