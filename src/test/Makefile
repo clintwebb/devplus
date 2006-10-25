@@ -1,34 +1,21 @@
 # makefile
 
-DEVPLUS=-I. -I.. 
+all: test-httpserver test-sqlite test-httpclient test-pipe
 
-all: test-httpserver test-sqlite test-httpclient
-
-LIBS=-lpthread -lsqlite3 -ldevplus -ldevplus-thread -ldevplus-sqlite
+LIBS=-lpthread -ldevplus -ldevplus-thread -ldevplus-main
 
 
-test-httpserver: httpserver.o DevPlus.o
-	g++ -o test-httpserver httpserver.o DevPlus.o $(LIBS) $(DEVPLUS)
+test-httpserver: httpserver.cpp 
+	g++ -o test-httpserver httpserver.cpp $(LIBS)
 
-test-httpclient: httpclient.o DevPlus.o
-	g++ -o test-httpclient httpclient.o DevPlus.o $(LIBS) $(DEVPLUS)
+test-httpclient: httpclient.cpp
+	g++ -o test-httpclient httpclient.cpp $(LIBS)
 
-test-sqlite: sqlite.o DevPlus.o
-	g++ -o test-sqlite sqlite.o DevPlus.o $(LIBS) $(DEVPLUS)
+test-sqlite: sqlite.cpp
+	g++ -o test-sqlite sqlite.cpp $(LIBS) -lsqlite3 -ldevplus-sqlite
 
-
-httpserver.o: httpserver.cpp ../DevPlus.h
-	g++ -c -o httpserver.o httpserver.cpp $(DEVPLUS)
-
-httpclient.o: httpclient.cpp ../DevPlus.h
-	g++ -c -o httpclient.o httpclient.cpp $(DEVPLUS)
-
-sqlite.o: sqlite.cpp ../DevPlus.h
-	g++ -c -o sqlite.o sqlite.cpp $(DEVPLUS)
-
-
-DevPlus.o: ../DevPlus.cpp ../DevPlus.h
-	g++ -c -o DevPlus.o ../DevPlus.cpp $(DEVPLUS)
+test-pipe: pipe.cpp
+	g++ -o test-pipe pipe.cpp $(LIBS)
 
 
 
