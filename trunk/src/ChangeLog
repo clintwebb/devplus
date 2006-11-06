@@ -10,6 +10,10 @@ This file lists all the changes to each version.  It includes the numerical vers
  -  Modified DpThreadObject::Start() so that it is virtual.  We can possibly 
     have child-classes that need to do something before actually starting the 
     thread process.   		
+ -  Adding back support for MySQL.  We havent used MySQL for quite some time, 
+ 	and had been using SQLite3 instead.  But because we are doing a project 
+ 	with MySQL we need to bring that code back into line with the rest of the 
+ 	system that has changed somewhat.
 
 200 	0.2.00		October 10, 2006.
  -  Seperating objects into seperate files that get included, and compiled 
