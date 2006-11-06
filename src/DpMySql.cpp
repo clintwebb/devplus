@@ -37,7 +37,9 @@
 #endif
 //-----------------------------------------------------------------------------
 
+#include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 
 #include <DpMySql.h>
@@ -342,7 +344,7 @@ bool DpMySqlDB::ExecuteStr(char *query)
         _nInsertID = mysql_insert_id(hSql);
         _pResult = mysql_store_result(hSql);
         if (_pResult != NULL) {
-            _nFields = mysql_nu_fields(_pResult);
+            _nFields = mysql_num_fields(_pResult);
             _pFieldList = mysql_fetch_fields(_pResult);
             bOK = true;
         }

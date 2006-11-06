@@ -59,6 +59,11 @@
 #include <DpLock.h>
 
 
+#if (MYSQL_VERSION_ID < 50026) 
+	#error This code has not been verified with any version prior to 5.00.26
+#endif
+
+
 class DpSqlDB
 {
 	public:
@@ -75,8 +80,7 @@ class DpSqlDB
 		virtual void ClientUnlock(void);
         
 	protected:
-		virtual void WriteLock(void);
-		virtual void ReadLock(void);
+		virtual void Lock(void);
 		virtual void Unlock(void);
 
 	private:

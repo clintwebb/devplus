@@ -1,5 +1,4 @@
-LIBS=libdevplus.a libdevplus-thread.a libdevplus-main.a libdevplus-sqlite.a 
-# libdevplus-mysql.a 
+LIBS=libdevplus.a libdevplus-thread.a libdevplus-main.a libdevplus-sqlite.a libdevplus-mysql.a 
 
 
 all: $(LIBS)
@@ -143,6 +142,7 @@ install: $(LIBS) COPYING AUTHORS docs/DevPlus-DevGuide.pdf
 	cp libdevplus-thread.a $(PREFIX)/usr/lib
 	cp libdevplus-main.a $(PREFIX)/usr/lib
 	cp libdevplus-sqlite.a $(PREFIX)/usr/lib
+	cp libdevplus-mysql.a $(PREFIX)/usr/lib
 	cp *.h $(PREFIX)/usr/include
 	cp *.h $(PREFIX)/usr/src/DevPlus
 	cp *.cpp $(PREFIX)/usr/src/DevPlus
@@ -158,6 +158,7 @@ remove:
 	@-rm $(PREFIX)/usr/src/DevPlus/DevPlus.cpp
 	@-rm $(PREFIX)/usr/include/DevPlus.h
 	@-rm $(PREFIX)/usr/lib/libdevplus-thread.a
+	@-rm $(PREFIX)/usr/lib/libdevplus-mysql.a
 	@-rmdir $(PREFIX)/usr/src/DevPlus/docs
 	@-rmdir $(PREFIX)/usr/src/DevPlus
 
