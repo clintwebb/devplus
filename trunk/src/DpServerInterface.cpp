@@ -149,7 +149,7 @@ void DpServerInterface::OnThreadRun(void)
 			
             OnAccept(nNewSock);
 			
-            if (nTimes < 100)   { nTimes++; }
+            if (nTimes < 10)   { nTimes++; }
             else                { bDone = true; }
         }
         else {
