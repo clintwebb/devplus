@@ -264,8 +264,8 @@ char * DpMySqlDB::Quote(char *str, unsigned int length)
 
     if (length == 0) { len = strlen(str); }
     else             { len = length; }
-    ASSERT(len > 0);
-    q = (char *) malloc((length * 2) + 1);
+    ASSERT(len >= 0);
+    q = (char *) malloc((len * 2) + 1);
     ASSERT(q);
 
     // The escape function should be ok to run in more than one thread at a time.  The mysql library is supposed to be thread safe in general, so it should be ok.
@@ -274,8 +274,12 @@ char * DpMySqlDB::Quote(char *str, unsigned int length)
     n = mysql_real_escape_string(_hSql, q, str, len);
     Unlock();
     
+//     printf("Mysql::Quote(\"%s\") - length:%d, n:%d, len:%d\n", str, length, n, len);
+    
     ASSERT(n >= len);
-    q[n] = '\0';
+    ASSERT(n < ((len * 2) + 1));
+    ASSERT(n == strlen(q));
+//     q[n] = '\0';
     q = (char *) realloc(q, n+1);
     ASSERT(q != NULL);
 
@@ -342,6 +346,7 @@ bool DpMySqlDB::ExecuteStr(char *query)
         ASSERT(_nInsertID == 0);
         ASSERT(_nFields == 0);
         _nInsertID = mysql_insert_id(hSql);
+//         printf("Mysql: InsertID: %d\n", _nInsertID);
         _pResult = mysql_store_result(hSql);
         if (_pResult != NULL) {
             _nFields = mysql_num_fields(_pResult);
@@ -556,5 +561,14 @@ void DpMySqlDB::UnlockTables(void)
 }
 
 
+void DpSqlDB::Lock(void)
+{
+	_xLock.Lock();
+}
+
+void DpSqlDB::Unlock(void)
+{
+	_xLock.Unlock();
+}
 
 
