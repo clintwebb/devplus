@@ -100,8 +100,14 @@ void DpServerInterface::AddObject(DpThreadObject *pObject)
 	ASSERT(pObject != NULL);
 	
 	Lock();
-	ASSERT((_nItems > 0 && _pList != NULL) || (_nItems >= 0 && _pList == NULL));
-
+	if (_nItems == 0) {
+		ASSERT(_pList == NULL);
+	}
+	else {
+		ASSERT(_nItems > 0);
+		ASSERT(_pList != NULL);
+	}
+	
 	for (i=0; i < _nItems && bFound == false; i++) {
 		if (_pList[i] == NULL) {
 			_pList[i] = pObject;
@@ -222,8 +228,10 @@ void DpServerInterface::CheckList(void)
 	for (i=0; i<_nItems; i++) {
 		if (_pList[i] != NULL) {
 			if (_pList[i]->IsDone() == true) {
-				delete _pList[i];
-				_pList[i] = NULL;
+				if (OnObjectDelete(_pList[i]) == true) {
+					delete _pList[i];
+					_pList[i] = NULL;
+				}
 			}
 		}
 	}
@@ -232,8 +240,22 @@ void DpServerInterface::CheckList(void)
 		_nItems--;
 	}
 	
+	if (_nItems == 0) {
+		free(_pList);
+		_pList = NULL;
+	}
+	
 	Unlock();
 }
 
+
+//------------------------------------------------------------------------------
+// CJW: This virtual function is called
+bool DpServerInterface::OnObjectDelete(DpThreadObject *pObject)
+{
+	bool bDelete = true;
+	ASSERT(pObject != NULL);
+	return(bDelete);
+}
 
 
