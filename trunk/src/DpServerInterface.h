@@ -94,10 +94,22 @@ class DpServerInterface : public DpThreadObject
 		
 	protected:
 		virtual void OnThreadRun(void); 		   // Worker thread that processes the incoming connections.
+		virtual bool OnObjectDelete(DpThreadObject *pObject);
 
 	protected:
 		virtual void AddObject(DpThreadObject *pObject);
 		virtual void CheckList(void);
+		
+	
+	public:
+		virtual int ItemCount()
+		{	
+			int i;
+			Lock();
+			i = _nItems;
+			Unlock();
+			return(i);
+		}
 	
 	private:
 		DpSocket        _xSocket;

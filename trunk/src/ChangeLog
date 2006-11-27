@@ -14,6 +14,12 @@ This file lists all the changes to each version.  It includes the numerical vers
  	and had been using SQLite3 instead.  But because we are doing a project 
  	with MySQL we need to bring that code back into line with the rest of the 
  	system that has changed somewhat.
+ -  Added ServerInterface::ItemCount() to return the number of thread objects 
+    that have been added to the serverinterface list (to manage).  
+ -  Added DpServerInterface::OnObjectDelete() so that the derived classes of 
+    ServerInterface can control the thread object somewhat when it is being 
+    deleted.  This can be used to keep track of the number of objects, or can 
+    be used to clean up an object that cant do it internally.
 
 200 	0.2.00		October 10, 2006.
  -  Seperating objects into seperate files that get included, and compiled 
