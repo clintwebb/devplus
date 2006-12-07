@@ -52,6 +52,8 @@
 #ifndef __DP_LOGGER_H
 #define __DP_LOGGER_H
 
+#include <stdio.h>
+
 #include <DevPlus.h>
 
 //------------------------------------------------------------------------------
@@ -61,13 +63,34 @@
 
 class DpLogger
 {
+    private:
+   		FILE  *_fp;
+   		int    _nLength;
+   		int    _nMaxLength;
+   		bool   _bTimestamp;
+   		int    _nDepth;
+   		char  *_szPath;
+   		
+    
     public:
         DpLogger();
         virtual ~DpLogger();
         
     protected:
-    private:
     
+    
+    public:
+    	bool Init(const char *szPath, int nDepth=4);
+    	virtual void Log(char *text, ...);
+    	virtual void LogStr(char *text);
+    	virtual void Close();
+    	virtual void SetTimestamp();
+
+    
+   	private:
+		bool Init();
+
+
 };
 
 

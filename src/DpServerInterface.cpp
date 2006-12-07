@@ -147,7 +147,6 @@ void DpServerInterface::OnThreadRun(void)
     SOCKET nNewSock;
     bool bDone = false;
     int nTimes = 0;
-	static int nCheck = 0;
 
     while (bDone == false) {
         nNewSock = _xSocket.Accept();
@@ -155,24 +154,17 @@ void DpServerInterface::OnThreadRun(void)
 			
             OnAccept(nNewSock);
 			
-            if (nTimes < 10)   { nTimes++; }
-            else                { bDone = true; }
+            if (nTimes < DP_SERVER_ACCEPT_CYCLES)   { nTimes++; }
+            else                					{ bDone = true; }
         }
         else {
             bDone = true;
         }
     }
     
-    if (nTimes == 0) {
-        OnIdle();
-		if (nCheck > 100)	{ 
-			CheckList(); 
-			nCheck = 0; 
-		}
-		else { 
-			nCheck++; 
-		}
-	}
+    if (nTimes == 0) { OnIdle(); }
+
+	CheckList(); 
 }
 
 
@@ -195,6 +187,8 @@ bool DpServerInterface::Listen(int nPort)
 	if (_xSocket.Listen(nPort) == true) {
 		// If we are not using GCC, then we will set the socket to non-blocking.
         _xSocket.SetNonBlocking();
+        
+        // And then start the thread.
         Start();
         bReturn = true;
     }
@@ -225,6 +219,7 @@ void DpServerInterface::CheckList(void)
 	int i;
 	
 	Lock();
+	
 	for (i=0; i<_nItems; i++) {
 		if (_pList[i] != NULL) {
 			if (_pList[i]->IsDone() == true) {

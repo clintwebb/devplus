@@ -96,5 +96,8 @@
 #define DP_MAX_HOST_LEN 255
 
 
+#define DP_SERVER_ACCEPT_CYCLES	10
+
+
 
 #endif  // __DEVPLUS_H
