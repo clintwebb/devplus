@@ -95,6 +95,7 @@ class DpServerInterface : public DpThreadObject
 	protected:
 		virtual void OnThreadRun(void); 		   // Worker thread that processes the incoming connections.
 		virtual bool OnObjectDelete(DpThreadObject *pObject);
+		virtual void OnAcceptFail(void);
 
 	protected:
 		virtual void AddObject(DpThreadObject *pObject);
