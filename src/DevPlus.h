@@ -73,6 +73,8 @@
 #define __DEVPLUS_H
 
 
+#define DEVPLUS_VERSION	225
+
 //------------------------------------------------------------------------------
 // Provide our assertion mapping function.  This would also depend eventually on 
 // what compiler we are using to compile with.  VC++ uses a graphical assertion, 

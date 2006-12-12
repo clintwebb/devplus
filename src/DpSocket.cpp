@@ -144,6 +144,7 @@ bool DpSocket::Connect(char *szHost, int nPort)
 {
     bool bConnected=false;
     struct sockaddr_in sin;
+    int on = 1;
 
     ASSERT(szHost != NULL);
     ASSERT(nPort > 0);
@@ -153,15 +154,23 @@ bool DpSocket::Connect(char *szHost, int nPort)
         // CJW: Create the socket
         _nSocket = socket(AF_INET,SOCK_STREAM,0);
         if (_nSocket >= 0) {
-            // CJW: Connect to the server
-            if (connect(_nSocket, (struct sockaddr*)&sin, sizeof(struct sockaddr)) >= 0) {
-                SetNonBlocking();   // and set the socket for non-blocking mode.
-                bConnected = true;
-            }
-            else {
+        
+       		// set the socket options so that we can avoid the TIME_WAIT annoying problem.
+		    if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
                 Close();
                 bConnected = false;
             }
+            else {
+				// CJW: Connect to the server
+				if (connect(_nSocket, (struct sockaddr*)&sin, sizeof(struct sockaddr)) >= 0) {
+					SetNonBlocking();   // and set the socket for non-blocking mode.
+					bConnected = true;
+				}
+				else {
+					Close();
+					bConnected = false;
+				}
+			}
         }
     }
 
@@ -225,7 +234,8 @@ int DpSocket::Receive(char *data, int len)
     if ((_nSocket > 0) && (len > 0) && (data != NULL)) {
         nResult = recv(_nSocket, data, len, 0);
         if (nResult == 0) {
-            _nSocket = 0;
+        	Close();
+            ASSERT(_nSocket == 0);
             nResult = -1;
         }
         else if (nResult < 0) {
@@ -268,7 +278,9 @@ int DpSocket::Send(char *data, int len)
     if ((_nSocket > 0) && (len > 0) && (data != NULL)) {
         nResult = send(_nSocket, data, len, 0);
         if (nResult == 0) {
-            _nSocket = 0;
+//         	printf("DpSocket::Send() - send returned a 0\n");
+        	Close();
+            ASSERT(_nSocket == 0);
             nResult = -1;
         }
         else if (nResult < 0) {
@@ -431,6 +443,7 @@ bool DpSocket::Listen(int nPort)
 {
 	struct sockaddr_in sin;
 	bool bReturn = false;
+	int on = 1;
 
     // will not work with a 0 or a negative number
 	ASSERT(nPort > 0);
@@ -439,26 +452,38 @@ bool DpSocket::Listen(int nPort)
     // CJW: Create the socket place holder
 	_nSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_nSocket > 0) {
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(nPort);
-		sin.sin_addr.s_addr = INADDR_ANY;
-
-		if (bind(_nSocket, (struct sockaddr *) &sin, sizeof(struct sockaddr)) == 0) {
-            // Can be in new thread
-			if (listen(_nSocket, 5) == 0) {
-				bReturn = true;
-			}
-			else {
-#ifdef __GNUC__
-                    close(_nSocket);
-#else
-                    closesocket(_nSocket);
-#endif
-                _nSocket = 0;
-			}
+	
+	    if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
+			#ifdef __GNUC__
+		        close(_nSocket);
+			#else
+            	closesocket(_nSocket);
+			#endif
+            _nSocket = 0;
 		}
 		else {
-			_nSocket = 0;
+	
+			sin.sin_family = AF_INET;
+			sin.sin_port = htons(nPort);
+			sin.sin_addr.s_addr = INADDR_ANY;
+	
+			if (bind(_nSocket, (struct sockaddr *) &sin, sizeof(struct sockaddr)) == 0) {
+				// Can be in new thread
+				if (listen(_nSocket, 5) == 0) {
+					bReturn = true;
+				}
+				else {
+					#ifdef __GNUC__
+						close(_nSocket);
+					#else
+						closesocket(_nSocket);
+					#endif
+					_nSocket = 0;
+				}
+			}
+			else {
+				_nSocket = 0;
+			}
 		}
 	}
     

@@ -158,6 +158,7 @@ void DpServerInterface::OnThreadRun(void)
             else                					{ bDone = true; }
         }
         else {
+        	OnAcceptFail();
             bDone = true;
         }
     }
@@ -253,4 +254,11 @@ bool DpServerInterface::OnObjectDelete(DpThreadObject *pObject)
 	return(bDelete);
 }
 
+
+//------------------------------------------------------------------------------
+// CJW: We wont do anything in here, but we provide this virtual function for 
+// 		child classes to know when an accept on a socket failed.  
+void DpServerInterface::OnAcceptFail(void)
+{
+}
 

@@ -3,6 +3,19 @@ VERSIONS
 
 This file lists all the changes to each version.  It includes the numerical version number that is used within the source code, and the version label (tag), as well as the date of release if it is known.
 
+225		0.2.25		December 12, 2006
+ -  Fixes a DpSocket bug that causes the socket to keep the handle open when 
+ 	the other connection has closed.  It was not closing the socket under 
+ 	those conditions.
+
+220		0.2.20		December 11, 2006.
+ -  Added DpServerInterface::OnAcceptFail() so that we can provide some 
+    logging to the child class when an accept operation fails.
+
+215		0.2.15		December 8, 2006.
+ -  When creating a socket, set the options on it so that we can re-use the 
+ 	socket.  To avoid the TIME_WAIT problem.
+
 210		0.2.10		October 17, 2006.
  -  Provide functionality in DpLogger.  It will basically write to a log file 
     whenever it is told to, without running in another thread.  It will block 

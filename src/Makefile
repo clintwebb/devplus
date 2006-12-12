@@ -64,70 +64,70 @@ libdevplus-mysql.a: DpMySql.o
 
 
 DpArgs.o: DpArgs.cpp $(H_Args)
-	gcc -c DpArgs.cpp -I. -o $@
+	gcc -c -Wall DpArgs.cpp -I. -o $@
 
 DpBase64.o: DpBase64.cpp $(H_Base64)
-	gcc -c DpBase64.cpp -I. -o $@
+	gcc -c -Wall DpBase64.cpp -I. -o $@
 
 DpCgi.o: DpCgi.cpp $(H_Cgi)
-	gcc -c DpCgi.cpp -I. -o $@
+	gcc -c -Wall DpCgi.cpp -I. -o $@
 
 DpDataQueue.o: DpDataQueue.cpp $(H_DataQueue)
-	gcc -c DpDataQueue.cpp -I. -o $@
+	gcc -c -Wall DpDataQueue.cpp -I. -o $@
 
 DpDataServer.o: DpDataServer.cpp $(H_DataServer)
-	gcc -c DpDataServer.cpp -I. -o $@
+	gcc -c -Wall DpDataServer.cpp -I. -o $@
 
 DpHttpClient.o: DpHttpClient.cpp $(H_HttpClient)
-	gcc -c DpHttpClient.cpp -I. -o $@
+	gcc -c -Wall DpHttpClient.cpp -I. -o $@
 
 DpHttpServer.o: DpHttpServer.cpp $(H_HttpServer)
-	gcc -c DpHttpServer.cpp -I. -o $@
+	gcc -c -Wall DpHttpServer.cpp -I. -o $@
 
 DpIniFile.o: DpIniFile.cpp $(H_IniFile)
-	gcc -c DpIniFile.cpp -I. -o $@
+	gcc -c -Wall DpIniFile.cpp -I. -o $@
 
 DpLock.o: DpLock.cpp $(H_Lock)
-	gcc -c DpLock.cpp -I. -o $@
+	gcc -c -Wall DpLock.cpp -I. -o $@
 
 DpLogger.o: DpLogger.cpp $(H_Logger)
-	gcc -c DpLogger.cpp -I. -o $@
+	gcc -c -Wall DpLogger.cpp -I. -o $@
 
 DpMain.o: DpMain.cpp $(H_Main) $(H_Args)
-	gcc -c DpMain.cpp -I. -o $@
+	gcc -c -Wall DpMain.cpp -I. -o $@
 
 DpMySql.o: DpMySql.cpp $(H_MySql)
-	gcc -c DpMySql.cpp -I. -o $@
+	gcc -c -Wall DpMySql.cpp -I. -o $@
 
 DpPipeCommand.o: DpPipeCommand.cpp $(H_PipeCommand)
-	gcc -c DpPipeCommand.cpp -I. -o $@
+	gcc -c -Wall DpPipeCommand.cpp -I. -o $@
 
 DpReadWriteLock.o: DpReadWriteLock.cpp $(H_ReadWriteLock)
-	gcc -c DpReadWriteLock.cpp -I. -o $@
+	gcc -c -Wall DpReadWriteLock.cpp -I. -o $@
 
 DpServerInterface.o: DpServerInterface.cpp $(H_ServerInterface)
-	gcc -c DpServerInterface.cpp -I. -o $@
+	gcc -c -Wall DpServerInterface.cpp -I. -o $@
 
 DpSettings.o: DpSettings.cpp $(H_Settings)
-	gcc -c DpSettings.cpp -I. -o $@
+	gcc -c -Wall DpSettings.cpp -I. -o $@
 
 DpSocket.o: DpSocket.cpp $(H_Socket)
-	gcc -c DpSocket.cpp -I. -o $@
+	gcc -c -Wall DpSocket.cpp -I. -o $@
 
 DpSqlite3.o: DpSqlite3.cpp $(H_Sqlite3)
-	gcc -c DpSqlite3.cpp -I. -o $@
+	gcc -c -Wall DpSqlite3.cpp -I. -o $@
 
 DpString.o: DpString.cpp $(H_String)
-	gcc -c DpString.cpp -I. -o $@
+	gcc -c -Wall DpString.cpp -I. -o $@
 
 DpTextTools.o: DpTextTools.cpp $(H_TextTools)
-	gcc -c DpTextTools.cpp -I. -o $@
+	gcc -c -Wall DpTextTools.cpp -I. -o $@
 
 DpThreadBase.o: DpThreadBase.cpp $(H_ThreadBase)
-	gcc -c DpThreadBase.cpp -I. -o $@
+	gcc -c -Wall DpThreadBase.cpp -I. -o $@
 
 DpThreadObject.o: DpThreadObject.cpp $(H_ThreadObject)
-	gcc -c DpThreadObject.cpp -I. -o $@
+	gcc -c -Wall DpThreadObject.cpp -I. -o $@
 
 
 clean:
