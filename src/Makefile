@@ -24,6 +24,7 @@ H_HttpServer=DpHttpServer.h $(H_ServerInterface) $(H_Socket) $(H_Lock) $(H_Cgi) 
 H_Logger=DpLogger.h $(H_DevPlus)
 H_PipeCommand=DpPipeCommand.h $(H_ThreadObject) $(H_DevPlus) 
 H_ReadWriteLock=DpReadWriteLock.h $(H_Lock) $(H_DevPlus)
+H_SocketEx=DpSocketEx.h $(H_Socket) $(H_ThreadObject) $(H_DevPlus)
 
 
 H_Args=DpArgs.h $(H_DevPlus)
@@ -39,7 +40,7 @@ libdevplus.a: DpDataQueue.o DpString.o DpBase64.o DpIniFile.o DpSocket.o DpTextT
 	ar -r $@
 	ar -r $@ $^
 
-libdevplus-thread.a: DpCgi.o DpHttpClient.o DpThreadBase.o DpLock.o DpSettings.o DpThreadObject.o DpServerInterface.o DpHttpServer.o DpLogger.o DpPipeCommand.o DpReadWriteLock.o 
+libdevplus-thread.a: DpCgi.o DpHttpClient.o DpThreadBase.o DpLock.o DpSettings.o DpThreadObject.o DpServerInterface.o DpHttpServer.o DpLogger.o DpPipeCommand.o DpReadWriteLock.o DpSocketEx.o
 	@-rm $@>/dev/null
 	ar -r $@
 	ar -r $@ $^
@@ -113,6 +114,9 @@ DpSettings.o: DpSettings.cpp $(H_Settings)
 
 DpSocket.o: DpSocket.cpp $(H_Socket)
 	gcc -c -Wall DpSocket.cpp -I. -o $@
+
+DpSocketEx.o: DpSocketEx.cpp $(H_SocketEx)
+	gcc -c -Wall DpSocketEx.cpp -I. -o $@
 
 DpSqlite3.o: DpSqlite3.cpp $(H_Sqlite3)
 	gcc -c -Wall DpSqlite3.cpp -I. -o $@
