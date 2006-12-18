@@ -264,6 +264,8 @@ int DpSocket::Receive(char *data, int len)
 }
 
 
+#include <stdio.h>
+
 //-----------------------------------------------------------------------------
 // CJW: Send some characters to the remote connection.  If we cant send at this
 //      time, exit and report.  This function is NON-BLOCKING.
@@ -276,9 +278,9 @@ int DpSocket::Send(char *data, int len)
     ASSERT(data != NULL && len > 0);
 
     if ((_nSocket > 0) && (len > 0) && (data != NULL)) {
-        nResult = send(_nSocket, data, len, 0);
+        nResult = send(_nSocket, data, len, MSG_NOSIGNAL);
         if (nResult == 0) {
-//         	printf("DpSocket::Send() - send returned a 0\n");
+         	printf("DpSocket::Send() - send returned a 0\n");
         	Close();
             ASSERT(_nSocket == 0);
             nResult = -1;
