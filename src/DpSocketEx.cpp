@@ -69,3 +69,27 @@ DpSocketEx::~DpSocketEx()
 }
 
 
+//-----------------------------------------------------------------------------
+// CJW: Connect to the host....
+bool DpSocketEx::Connect(char *szHost, int nPort)
+{
+	bool bOK = false;
+	
+	ASSERT(szHost != NULL && nPort > 0);
+	Lock();
+	ASSERT(_pSocket == NULL);
+	_pSocket = new DpSocket;
+	ASSERT(_pSocket != NULL);
+	bOK = _pSocket->Connect(szHost, nPort);
+	Unlock();
+	
+	
+	
+	return(bOK);
+}
+
+//-----------------------------------------------------------------------------
+// CJW: Return true if the connection has been closed.  Keep in mind that we wont actually close the connection until all the data has been processed.
+bool IsClosed(void);
+
+

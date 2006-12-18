@@ -66,7 +66,7 @@ class theApp : public DpMain
 			printf("On Startup();\n");
 			if (client.Connect("", 8888) == true) {
 				while(client.IsClosed() == false) {
-					
+					Sleep(1000);
 				}
 			}
 			

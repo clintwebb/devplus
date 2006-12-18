@@ -79,6 +79,8 @@ class DpSocketEx : public DpThreadObject
         DpSocketEx();                             // Constructor.
         virtual ~DpSocketEx();                    // Deconstructor.
 
+		bool Connect(char *szHost, int nPort);
+		bool IsClosed(void);
 
 	protected:
 		virtual int OnReceive(char *pData, int nLength) = 0;
