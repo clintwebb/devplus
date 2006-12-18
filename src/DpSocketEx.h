@@ -73,9 +73,15 @@ class DpSocketEx : public DpThreadObject
 	protected:
 		DpSocket *_pSocket;
 	
+	
+	
     public:
         DpSocketEx();                             // Constructor.
         virtual ~DpSocketEx();                    // Deconstructor.
+
+
+	protected:
+		virtual int OnReceive(char *pData, int nLength) = 0;
 
     private:
 		

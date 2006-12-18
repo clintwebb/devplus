@@ -1,6 +1,6 @@
 # makefile
 
-all: test-httpserver test-sqlite test-httpclient test-pipe
+all: test-httpserver test-sqlite test-httpclient test-pipe test-socketex test-timestream
 
 LIBS=-lpthread -ldevplus -ldevplus-thread -ldevplus-main
 
@@ -16,6 +16,12 @@ test-sqlite: sqlite.cpp
 
 test-pipe: pipe.cpp
 	g++ -o test-pipe pipe.cpp $(LIBS)
+
+test-socketex: socketex.cpp
+	g++ -o $@ socketex.cpp $(LIBS)
+
+test-timestream: timestream.cpp
+	g++ -o $@ timestream.cpp $(LIBS)
 
 
 
