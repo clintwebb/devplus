@@ -41,6 +41,7 @@
 
 
 //-----------------------------------------------------------------------------
+#include <stdlib.h>
 #include <DpSocketEx.h>
 
 
@@ -52,6 +53,10 @@ DpSocketEx::DpSocketEx()
 {
 	Lock();
     _pSocket = NULL;
+    _pBuffer = NULL;
+	_nBufferLength = 0;
+	_bClosed = false;
+	_pReadBuffer = NULL;
     Unlock();
 }
 
@@ -65,7 +70,26 @@ DpSocketEx::~DpSocketEx()
         _pSocket = NULL;
     }
     ASSERT(_pSocket == NULL);
+    
+    ASSERT((_pBuffer == NULL && _nBufferLength == 0) || (_pBuffer != NULL && _nBufferLength >= 0));
+    if (_pBuffer != NULL) {
+    	free(_pBuffer);
+    	_pBuffer = NULL;
+    	_nBufferLength = 0;
+    }
+    ASSERT(_pBuffer == NULL && _nBufferLength == 0);
+    
+    _nExternalLock.Lock();
+    _bClosed = true;
+    _nExternalLock.Unlock();
+    
+    if (_pReadBuffer != NULL) {
+    	free(_pReadBuffer); _pReadBuffer = NULL;
+    }
+    
     Unlock();
+    
+    WaitForThread();
 }
 
 
@@ -83,13 +107,155 @@ bool DpSocketEx::Connect(char *szHost, int nPort)
 	bOK = _pSocket->Connect(szHost, nPort);
 	Unlock();
 	
-	
+	// start the thread.
+	Start();
 	
 	return(bOK);
 }
 
 //-----------------------------------------------------------------------------
-// CJW: Return true if the connection has been closed.  Keep in mind that we wont actually close the connection until all the data has been processed.
-bool IsClosed(void);
+// CJW: Return true if the connection has been closed.  Keep in mind that we 
+// 		wont actually close the connection until all the data has been 
+// 		processed.
+bool DpSocketEx::IsClosed(void)
+{
+	bool bClosed;
+	
+    _nExternalLock.Lock();
+    bClosed = _bClosed;
+    _nExternalLock.Unlock();
+
+	return(bClosed);
+}
 
 
+void DpSocketEx::OnThreadStart(void)
+{
+	Lock();
+	ASSERT(_pReadBuffer == NULL);
+	ASSERT(DP_MAX_PACKET_SIZE >= 32);
+	_pReadBuffer = (char *) malloc(DP_MAX_PACKET_SIZE);
+	ASSERT(_pReadBuffer != NULL);
+	Unlock();
+}
+
+
+//-----------------------------------------------------------------------------
+// CJW: Thread to handle the receiving of data from the socket.  
+//	** Should we add new data to a data array, or should we create a series of 
+//	   chunks so that we dont have to keep re-sizing and allocating memory?  
+//	   Well, if the child class didnt process the data on the first reception 
+//	   of it, then it probably needed more data.  So we should just add more 
+//	   data.  Since this function will be called often even if there is no data, 
+//	   then we should use an internal buffer that is created once for the 
+//	   object, and then re-used, rather than continually allocating and then 
+//	   freeing data.
+void DpSocketEx::OnThreadRun(void)
+{
+	bool bIdle;
+	int done;
+	char *pTmp;
+	
+	Lock();
+	
+	ASSERT(_pSocket != NULL);
+	ASSERT(_pBuffer == NULL && _nBufferLength == 0);
+	
+	while (_pSocket != NULL || _nBufferLength > 0) {
+		bIdle = true;
+		
+		// read data.
+		ASSERT(_pReadBuffer != NULL);
+		if (_pSocket != NULL) {
+			done = _pSocket->Read(_pReadBuffer, DP_MAX_PACKET_SIZE);
+			if (done < 0) {
+				// socket closed.
+				delete _pSocket;
+				_pSocket = NULL;
+			}
+			else if (done > 0) {
+				#error complete.
+			}
+		}
+		
+		// call virtual function.
+		if (_nBufferLength > 0) {
+			ASSERT(_pBuffer != NULL);
+			done = OnReceive(_pBuffer, _nBufferLength);
+			ASSERT(done <= _nBufferLength);
+			if (done == _nBufferLength) {
+				free(_pBuffer);
+				_pBuffer = NULL;
+				_nBufferLength = 0;
+				bIdle = false;
+			}
+			else if (done > 0) {
+				ASSERT(_nBufferLength > done);
+				_nBufferLength -= done;
+				ASSERT(_nBufferLength > 0);
+				memmove(_pBuffer, _pBuffer + done, _nBufferLength);
+				_pBuffer = (char *) realloc(_pBuffer, _nBufferLength);
+				ASSERT(_pBuffer != NULL);
+				bIdle = false;
+			}
+			else {
+				ASSERT(done == 0);
+				if (_pSocket == NULL) {
+					OnStalled(_pBuffer, _nBufferLength);
+					free(_pBuffer); _pBuffer = NULL;
+					_nBufferLength = 0;
+				}
+			}
+		}
+		
+		
+	    ASSERT((_pBuffer == NULL && _nBufferLength == 0) || (_pBuffer != NULL && _nBufferLength >= 0));
+		if (_nBufferLength == 0 && _pSocket == NULL) {
+			_nExternalLock.Lock();
+			_bClosed = true;
+			_nExternalLock.Unlock();
+			OnClosed();
+			bIdle = false;
+		}
+		
+		if (bIdle == true) {
+			Unlock();
+			Sleep(50);
+			Lock();
+		}
+	}
+	Unlock();
+}
+
+
+//-----------------------------------------------------------------------------
+// CJW: This virtual function is called after a socket has been closed (from 
+// 		the peer), and no data has been queued to be received.  Not called when 
+// 		closed directly).
+void DpSocketEx::OnClosed(void)
+{
+	Lock();
+	ASSERT(_pSocket == NULL);
+	Unlock();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// CJW: if the peer has closed the socket but there is still data that hasnt 
+// 		been processed, we still call OnReceive so that the child process can 
+// 		deal with it.  if the Onreceive does not process any of the data from 
+// 		the queue, then this virtual function is called to let the child know 
+// 		that there will not be any more data coming from the socket.  This 
+// 		function will happen once, and then the remaining data will be purged 
+// 		and the socket completed.  The object itself will then be able to be 
+// 		deleted (if it was created as a session for DpServerInterface it would 
+// 		be cleaned up automatically).  OnClosed will be called after.
+void DpSocketEx::OnStalled(char *pData, int nLength)
+{
+	ASSERT(pData != NULL && nLength > 0);
+	Lock();
+	ASSERT(_pSocket == NULL);
+	Unlock();
+}
