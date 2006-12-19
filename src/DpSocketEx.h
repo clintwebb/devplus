@@ -72,7 +72,11 @@ class DpSocketEx : public DpThreadObject
 {
 	protected:
 		DpSocket *_pSocket;
-	
+		char     *_pBuffer;
+		char 	 *_pReadBuffer;
+		int       _nBufferLength;
+		DpLock    _nExternalLock;
+		bool	  _bClosed;
 	
 	
     public:
@@ -83,7 +87,12 @@ class DpSocketEx : public DpThreadObject
 		bool IsClosed(void);
 
 	protected:
+		virtual void OnThreadStart(void);
+		virtual void OnThreadRun(void);
+	
 		virtual int OnReceive(char *pData, int nLength) = 0;
+		virtual void OnClosed(void);
+		virtual void OnStalled(char *pData, int nLength);
 
     private:
 		
