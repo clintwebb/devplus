@@ -42,6 +42,7 @@
 
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
+#include <string.h>
 #include <DpSocketEx.h>
 
 
@@ -51,26 +52,31 @@
 // CJW: Constructor.  Initialise the socket.
 DpSocketEx::DpSocketEx()
 {
-	Lock();
+	_MainLock.Lock();
     _pSocket = NULL;
+    
+    _BufferLock.Lock();
     _pBuffer = NULL;
 	_nBufferLength = 0;
+	_BufferLock.Unlock();
+	
 	_bClosed = false;
 	_pReadBuffer = NULL;
-    Unlock();
+    _MainLock.Unlock();
 }
 
 //-----------------------------------------------------------------------------
 // CJW: Deconstructor.  If we still have a connected socket, then close it.
 DpSocketEx::~DpSocketEx()
 {
-	Lock();
+	_MainLock.Lock();
     if (_pSocket != NULL) {
         delete _pSocket;
         _pSocket = NULL;
     }
     ASSERT(_pSocket == NULL);
     
+    _BufferLock.Lock();
     ASSERT((_pBuffer == NULL && _nBufferLength == 0) || (_pBuffer != NULL && _nBufferLength >= 0));
     if (_pBuffer != NULL) {
     	free(_pBuffer);
@@ -78,16 +84,17 @@ DpSocketEx::~DpSocketEx()
     	_nBufferLength = 0;
     }
     ASSERT(_pBuffer == NULL && _nBufferLength == 0);
+    _BufferLock.Unlock();
     
-    _nExternalLock.Lock();
+    _ExternalLock.Lock();
     _bClosed = true;
-    _nExternalLock.Unlock();
+    _ExternalLock.Unlock();
     
     if (_pReadBuffer != NULL) {
     	free(_pReadBuffer); _pReadBuffer = NULL;
     }
     
-    Unlock();
+    _MainLock.Unlock();
     
     WaitForThread();
 }
@@ -100,12 +107,13 @@ bool DpSocketEx::Connect(char *szHost, int nPort)
 	bool bOK = false;
 	
 	ASSERT(szHost != NULL && nPort > 0);
-	Lock();
+	
+	_MainLock.Lock();
 	ASSERT(_pSocket == NULL);
 	_pSocket = new DpSocket;
 	ASSERT(_pSocket != NULL);
 	bOK = _pSocket->Connect(szHost, nPort);
-	Unlock();
+	_MainLock.Unlock();
 	
 	// start the thread.
 	Start();
@@ -121,9 +129,9 @@ bool DpSocketEx::IsClosed(void)
 {
 	bool bClosed;
 	
-    _nExternalLock.Lock();
+    _ExternalLock.Lock();
     bClosed = _bClosed;
-    _nExternalLock.Unlock();
+    _ExternalLock.Unlock();
 
 	return(bClosed);
 }
@@ -131,12 +139,12 @@ bool DpSocketEx::IsClosed(void)
 
 void DpSocketEx::OnThreadStart(void)
 {
-	Lock();
+	_MainLock.Lock();
 	ASSERT(_pReadBuffer == NULL);
 	ASSERT(DP_MAX_PACKET_SIZE >= 32);
 	_pReadBuffer = (char *) malloc(DP_MAX_PACKET_SIZE);
 	ASSERT(_pReadBuffer != NULL);
-	Unlock();
+	_MainLock.Unlock();
 }
 
 
@@ -154,9 +162,8 @@ void DpSocketEx::OnThreadRun(void)
 {
 	bool bIdle;
 	int done;
-	char *pTmp;
 	
-	Lock();
+	_MainLock.Lock();
 	
 	ASSERT(_pSocket != NULL);
 	ASSERT(_pBuffer == NULL && _nBufferLength == 0);
@@ -167,18 +174,25 @@ void DpSocketEx::OnThreadRun(void)
 		// read data.
 		ASSERT(_pReadBuffer != NULL);
 		if (_pSocket != NULL) {
-			done = _pSocket->Read(_pReadBuffer, DP_MAX_PACKET_SIZE);
+			done = _pSocket->Receive(_pReadBuffer, DP_MAX_PACKET_SIZE);
 			if (done < 0) {
 				// socket closed.
 				delete _pSocket;
 				_pSocket = NULL;
 			}
 			else if (done > 0) {
-				#error complete.
+				_BufferLock.Lock();
+				_pBuffer = (char *) realloc(_pBuffer, _nBufferLength + done + 1);
+				memcpy(&_pBuffer[_nBufferLength], _pReadBuffer, done);
+				_nBufferLength += done;
+				_BufferLock.Unlock();
+				bIdle = false;
 			}
 		}
+		_MainLock.Unlock();
 		
 		// call virtual function.
+		_BufferLock.Lock();
 		if (_nBufferLength > 0) {
 			ASSERT(_pBuffer != NULL);
 			done = OnReceive(_pBuffer, _nBufferLength);
@@ -208,23 +222,23 @@ void DpSocketEx::OnThreadRun(void)
 			}
 		}
 		
-		
 	    ASSERT((_pBuffer == NULL && _nBufferLength == 0) || (_pBuffer != NULL && _nBufferLength >= 0));
 		if (_nBufferLength == 0 && _pSocket == NULL) {
-			_nExternalLock.Lock();
+			_ExternalLock.Lock();
 			_bClosed = true;
-			_nExternalLock.Unlock();
+			_ExternalLock.Unlock();
 			OnClosed();
 			bIdle = false;
 		}
 		
+		_BufferLock.Unlock();
+		
 		if (bIdle == true) {
-			Unlock();
 			Sleep(50);
-			Lock();
 		}
+		_MainLock.Lock();
 	}
-	Unlock();
+	_MainLock.Unlock();
 }
 
 
@@ -234,9 +248,9 @@ void DpSocketEx::OnThreadRun(void)
 // 		closed directly).
 void DpSocketEx::OnClosed(void)
 {
-	Lock();
+	_MainLock.Lock();
 	ASSERT(_pSocket == NULL);
-	Unlock();
+	_MainLock.Unlock();
 }
 
 
@@ -255,7 +269,24 @@ void DpSocketEx::OnClosed(void)
 void DpSocketEx::OnStalled(char *pData, int nLength)
 {
 	ASSERT(pData != NULL && nLength > 0);
-	Lock();
+	_MainLock.Lock();
 	ASSERT(_pSocket == NULL);
-	Unlock();
+	_MainLock.Unlock();
 }
+
+
+int DpSocketEx::Send(char *pData, int nLength)
+{
+	int nTotal=0;
+	
+	ASSERT(pData != NULL && nLength > 0);
+	_MainLock.Lock();
+	
+	// we need to keep sending until all the data has been sent.
+	#error not complete
+	
+	_MainLock.Unlock();
+}
+
+
+

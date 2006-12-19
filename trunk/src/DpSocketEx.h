@@ -65,6 +65,9 @@
 //	functions when data has been received, or sent, or the connection closed, 
 //	etc.
 //
+//
+//	** Just to get it working, we will use a non-blocking loop with a sleep.  
+//
 //-----------------------------------------------------------------------------
 
 
@@ -75,7 +78,8 @@ class DpSocketEx : public DpThreadObject
 		char     *_pBuffer;
 		char 	 *_pReadBuffer;
 		int       _nBufferLength;
-		DpLock    _nExternalLock;
+		DpLock    _MainLock, _ExternalLock, _BufferLock;
+		
 		bool	  _bClosed;
 	
 	
@@ -93,7 +97,10 @@ class DpSocketEx : public DpThreadObject
 		virtual int OnReceive(char *pData, int nLength) = 0;
 		virtual void OnClosed(void);
 		virtual void OnStalled(char *pData, int nLength);
-
+		
+		virtual int Send(char *pData, int nLength);
+    
+    
     private:
 		
 };

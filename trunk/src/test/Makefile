@@ -27,3 +27,6 @@ test-timestream: timestream.cpp
 
 clean:
 	@-rm *.o
+	@-rm test-timestream
+	@-rm test-socketex
+
