@@ -78,6 +78,7 @@ class DpSocketEx : public DpThreadObject
 		char     *_pBuffer;
 		char 	 *_pReadBuffer;
 		int       _nBufferLength;
+		bool      _bWait;
 		DpLock    _MainLock, _ExternalLock, _BufferLock;
 		
 		bool	  _bClosed;
@@ -89,17 +90,21 @@ class DpSocketEx : public DpThreadObject
 
 		bool Connect(char *szHost, int nPort);
 		bool IsClosed(void);
+		void Accept(SOCKET nSocket);
+        virtual void GetPeerName(char *pStr, int nMax);
+        void Close(void);
 
 	protected:
 		virtual void OnThreadStart(void);
 		virtual void OnThreadRun(void);
 	
 		virtual int OnReceive(char *pData, int nLength) = 0;
+		virtual void OnIdle(void);
 		virtual void OnClosed(void);
 		virtual void OnStalled(char *pData, int nLength);
 		
 		virtual int Send(char *pData, int nLength);
-    
+
     
     private:
 		

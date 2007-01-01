@@ -27,6 +27,17 @@ class Client : public DpSocketEx
 			
 			return(nDone);
 		}
+		
+		virtual void OnClosed(void)
+		{
+			printf("** Closed\n");
+		}
+		
+		virtual void OnStalled(char *pData, int nLength)
+		{
+			printf("** Stalled\n");
+		}
+
 
 	
 	public:
@@ -64,7 +75,7 @@ class theApp : public DpMain
 			Client client;
 			
 			printf("On Startup();\n");
-			if (client.Connect("", 8888) == true) {
+			if (client.Connect("localhost", 8888) == true) {
 				while(client.IsClosed() == false) {
 					Sleep(1000);
 				}
