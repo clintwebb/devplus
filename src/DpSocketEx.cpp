@@ -62,6 +62,7 @@ DpSocketEx::DpSocketEx()
 	
 	_bClosed = false;
 	_pReadBuffer = NULL;
+	_bWait = false;
     _MainLock.Unlock();
 }
 
@@ -167,6 +168,7 @@ void DpSocketEx::OnThreadRun(void)
 	
 	ASSERT(_pSocket != NULL);
 	ASSERT(_pBuffer == NULL && _nBufferLength == 0);
+	ASSERT(_bWait == false);
 	
 	while (_pSocket != NULL || _nBufferLength > 0) {
 		bIdle = true;
@@ -179,6 +181,7 @@ void DpSocketEx::OnThreadRun(void)
 				// socket closed.
 				delete _pSocket;
 				_pSocket = NULL;
+				_bWait = false;
 			}
 			else if (done > 0) {
 				_BufferLock.Lock();
@@ -187,6 +190,7 @@ void DpSocketEx::OnThreadRun(void)
 				_nBufferLength += done;
 				_BufferLock.Unlock();
 				bIdle = false;
+				_bWait = false;
 			}
 		}
 		_MainLock.Unlock();
@@ -195,29 +199,34 @@ void DpSocketEx::OnThreadRun(void)
 		_BufferLock.Lock();
 		if (_nBufferLength > 0) {
 			ASSERT(_pBuffer != NULL);
-			done = OnReceive(_pBuffer, _nBufferLength);
-			ASSERT(done <= _nBufferLength);
-			if (done == _nBufferLength) {
-				free(_pBuffer);
-				_pBuffer = NULL;
-				_nBufferLength = 0;
-				bIdle = false;
-			}
-			else if (done > 0) {
-				ASSERT(_nBufferLength > done);
-				_nBufferLength -= done;
-				ASSERT(_nBufferLength > 0);
-				memmove(_pBuffer, _pBuffer + done, _nBufferLength);
-				_pBuffer = (char *) realloc(_pBuffer, _nBufferLength);
-				ASSERT(_pBuffer != NULL);
-				bIdle = false;
-			}
-			else {
-				ASSERT(done == 0);
-				if (_pSocket == NULL) {
-					OnStalled(_pBuffer, _nBufferLength);
-					free(_pBuffer); _pBuffer = NULL;
+			if (_bWait == false) {
+				done = OnReceive(_pBuffer, _nBufferLength);
+				ASSERT(done <= _nBufferLength);
+				if (done == _nBufferLength) {
+					free(_pBuffer);
+					_pBuffer = NULL;
 					_nBufferLength = 0;
+					bIdle = false;
+				}
+				else if (done > 0) {
+					ASSERT(_nBufferLength > done);
+					_nBufferLength -= done;
+					ASSERT(_nBufferLength > 0);
+					memmove(_pBuffer, _pBuffer + done, _nBufferLength);
+					_pBuffer = (char *) realloc(_pBuffer, _nBufferLength);
+					ASSERT(_pBuffer != NULL);
+					bIdle = false;
+				}
+				else {
+					ASSERT(done == 0);
+					if (_pSocket == NULL) {
+						OnStalled(_pBuffer, _nBufferLength);
+						free(_pBuffer); _pBuffer = NULL;
+						_nBufferLength = 0;
+					}
+					else {
+						_bWait = true;
+					}
 				}
 			}
 		}
@@ -234,7 +243,7 @@ void DpSocketEx::OnThreadRun(void)
 		_BufferLock.Unlock();
 		
 		if (bIdle == true) {
-			Sleep(50);
+			OnIdle();
 		}
 		_MainLock.Lock();
 	}
@@ -275,18 +284,94 @@ void DpSocketEx::OnStalled(char *pData, int nLength)
 }
 
 
+//-----------------------------------------------------------------------------
+// CJW: Send the data.  Keep sending until it is all sent.
 int DpSocketEx::Send(char *pData, int nLength)
 {
-	int nTotal=0;
+	int nTotal=0, nSent;
+	bool bLoop = true;
 	
 	ASSERT(pData != NULL && nLength > 0);
 	_MainLock.Lock();
 	
 	// we need to keep sending until all the data has been sent.
-	#error not complete
+	ASSERT(bLoop == true);
+	while (bLoop == true) {
+		
+		ASSERT(_pSocket != NULL);
+		ASSERT(nTotal >= 0 && nTotal < nLength);
+		nSent = _pSocket->Send(&pData[nTotal], nLength - nTotal);
+		if (nSent < 0) {
+			ASSERT(nSent == -1);
+		}
+		else if (nSent > 0) {
+			nTotal += nSent;
+		}
+		
+		ASSERT(nTotal >= 0 && nTotal < nLength);
+		if (nTotal == nLength || _pSocket == NULL) {
+			bLoop = false;
+		}
+		else {
+			// obviously we couldnt send everything in one go, so we will 
+			// sleep now for a little bit and then loop around and try 
+			// again.
+			Sleep(50);
+		}
+	}
 	
 	_MainLock.Unlock();
+	
+	return(nTotal);
 }
+
+
+//-----------------------------------------------------------------------------
+// CJW: This virtual function is called whenever the socket seems to be idle.  
+// 		Would generally be called every 50 miliseconds if there is no activity.
+void DpSocketEx::OnIdle(void)
+{
+	Sleep(50);
+}
+
+
+
+
+void DpSocketEx::Accept(SOCKET nSocket)
+{
+	ASSERT(nSocket > 0);
+	_MainLock.Lock();
+	ASSERT(_pSocket == NULL);
+	_pSocket = new DpSocket;
+	ASSERT(_pSocket != NULL);
+	_pSocket->Accept(nSocket);
+	_MainLock.Unlock();
+	
+	// start the thread.
+	Start();
+}
+
+
+void DpSocketEx::GetPeerName(char *pStr, int nMax)
+{
+	ASSERT(pStr != NULL && nMax > 0);
+	_MainLock.Lock();
+	ASSERT(_pSocket != NULL);
+	_pSocket->GetPeerName(pStr, nMax);
+	_MainLock.Unlock();
+}
+
+
+
+void DpSocketEx::Close(void)
+{
+	_MainLock.Lock();
+	ASSERT(_pSocket != NULL);
+	delete _pSocket;
+	_pSocket = NULL;
+	_MainLock.Unlock();
+}
+
 
 
 

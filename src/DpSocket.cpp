@@ -264,7 +264,6 @@ int DpSocket::Receive(char *data, int len)
 }
 
 
-#include <stdio.h>
 
 //-----------------------------------------------------------------------------
 // CJW: Send some characters to the remote connection.  If we cant send at this
@@ -280,7 +279,7 @@ int DpSocket::Send(char *data, int len)
     if ((_nSocket > 0) && (len > 0) && (data != NULL)) {
         nResult = send(_nSocket, data, len, MSG_NOSIGNAL);
         if (nResult == 0) {
-         	printf("DpSocket::Send() - send returned a 0\n");
+//          	printf("DpSocket::Send() - send returned a 0\n");
         	Close();
             ASSERT(_nSocket == 0);
             nResult = -1;

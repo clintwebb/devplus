@@ -2,7 +2,7 @@
 
 all: test-httpserver test-sqlite test-httpclient test-pipe test-socketex test-timestream
 
-LIBS=-lpthread -ldevplus -ldevplus-thread -ldevplus-main
+LIBS=-lpthread -ldevplus-thread -ldevplus-main -ldevplus 
 
 
 test-httpserver: httpserver.cpp 
