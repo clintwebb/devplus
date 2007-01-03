@@ -407,6 +407,7 @@ bool DpSocket::IsConnected()
     return(_nSocket > 0 ? true : false);
 }
 
+#include <stdio.h>
 
 //-----------------------------------------------------------------------------
 // CJW: Sometimes it is nice to know what is on the other end of the socket 
@@ -420,6 +421,7 @@ void DpSocket::GetPeerName(char *pStr, int nMax)
     struct sockaddr name;
     socklen_t namelen;
     int nResult;
+    int i;
     
     ASSERT(pStr != NULL);
     ASSERT(nMax > 0);
@@ -429,8 +431,7 @@ void DpSocket::GetPeerName(char *pStr, int nMax)
     namelen = sizeof(name);
     nResult = getpeername(_nSocket, &name, &namelen);
     
-    ASSERT(0);
-    // Need to finish this.  Once we have something running that can be used to test it, we need to put some print information so we can see what this functional actually returns.
+    sprintf(pStr, "%d.%d.%d.%d", (unsigned int) name.sa_data[2], (unsigned int) name.sa_data[3], (unsigned int) name.sa_data[4], (unsigned int) name.sa_data[5]);
 }
 
 
