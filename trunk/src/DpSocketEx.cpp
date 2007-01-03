@@ -308,7 +308,7 @@ int DpSocketEx::Send(char *pData, int nLength)
 			nTotal += nSent;
 		}
 		
-		ASSERT(nTotal >= 0 && nTotal < nLength);
+		ASSERT(nTotal >= 0 && nTotal <= nLength);
 		if (nTotal == nLength || _pSocket == NULL) {
 			bLoop = false;
 		}
