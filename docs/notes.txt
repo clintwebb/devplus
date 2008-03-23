@@ -1,6 +1,6 @@
-This folder should contain documents about the design of DevPlus.  This is not the place for user 
-documentation or manuals.  It is for the development OF devplus, not for development WITH 
-devplus.
+This folder should contain documents about the design of DevPlus.  This is not the place 
+for user documentation or manuals.  It is for the development OF devplus, not for 
+development WITH devplus.
 
 User documentation should go in ./src/current/docs/
 
