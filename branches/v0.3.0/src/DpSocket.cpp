@@ -104,7 +104,7 @@ void DpSocket::Init(void)
 //-----------------------------------------------------------------------------
 // CJW: In order to connect to a remote host, we have to resolve the name or IP
 //      address and port into a structure.
-int DpSocket::Resolve(const char *szAddr, int iPort, struct sockaddr_in *pSin, char *szType)
+int DpSocket::Resolve(const char *szAddr, int iPort, struct sockaddr_in *pSin, const char *szType)
 {
     unsigned long ulAddress;
     struct hostent *hp;
