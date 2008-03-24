@@ -4,7 +4,7 @@
 
 
 /***************************************************************************
- *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
+ *   Copyright (C) 2006-2008 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
  *   devplus@hyper-active.com.au                                           *
  *                                                                         *
@@ -140,7 +140,7 @@ int DpSocket::Resolve(const char szAddr[], int iPort, struct sockaddr_in *pSin, 
 //-----------------------------------------------------------------------------
 // Connect to the host and port.  Return true if we are connected.  Returns
 // false if we couldnt connect.
-bool DpSocket::Connect(char *szHost, int nPort)
+bool DpSocket::Connect(const char *szHost, int nPort)
 {
     bool bConnected=false;
     struct sockaddr_in sin;
