@@ -3,7 +3,7 @@
 //  DevPlus C++ Library.
 //  
 /***************************************************************************
- *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
+ *   Copyright (C) 2006-2008 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
  *   devplus@hyper-active.com.au                                           *
  *                                                                         *
@@ -101,7 +101,7 @@ class DpSocket
 
 		// connect to the specified host and port, returning true if 
 		// connected.
-        bool Connect(char *szHost, int nPort);  
+        bool Connect(const char *szHost, int nPort);  
 		
 		// send data over the socket, return the number of chars sent, -1 if 
 		// error (which could mean WOULDBLOCK), 0 if connection was closed.
