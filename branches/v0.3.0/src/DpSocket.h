@@ -133,7 +133,7 @@ class DpSocket
 		
 		// resolve a name (or ip) and port into a socket structure that can be 
 		// used to connect to the remote server.
-		int Resolve(const char szAddr[], int iPort, struct sockaddr_in *pSin, char *szType="A");      
+		int Resolve(const char szAddr*, int iPort, struct sockaddr_in *pSin, char *szType="A");      
 		
 };
 
