@@ -447,21 +447,21 @@ bool DpSocket::Listen(int nPort)
 	bool bReturn = false;
 	int on = 1;
 
-    // will not work with a 0 or a negative number
+	// will not work with a 0 or a negative number
 	ASSERT(nPort > 0);
 	ASSERT(_nSocket == 0);
 
-    // CJW: Create the socket place holder
+	// CJW: Create the socket place holder
 	_nSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_nSocket > 0) {
 	
-	    if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
+		if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
 			#ifdef __GNUC__
-		        close(_nSocket);
+				close(_nSocket);
 			#else
-            	closesocket(_nSocket);
+				closesocket(_nSocket);
 			#endif
-            _nSocket = 0;
+			_nSocket = 0;
 		}
 		else {
 	
