@@ -1,0 +1,57 @@
+# Updated 2004-05-13 by Clint Webb (cjw@hyper-active.com.au)
+
+pkgname=devplus
+pkgver=0.1.46
+pkgrel=1
+pkgdesc="A set of integrated C++ classes useful for a variety of things."
+url="http://hyper-active.com.au/products/devplus"
+#depends=('')
+makedepends=('gcc' 'binutils')
+conflicts=()
+backup=()
+#install=devplus.install
+source=(http://hyper-active.com.au/products/devplus/$pkgname-$pkgver.tar.gz)
+md5sums=(80b9426787d76701f15dc4c28d0e3486)
+
+build() {
+  cd $startdir/src
+#  gcc -c DevPlus.cpp -o DevPlus.o -DDP_SINGLETHREAD
+#  ar -r libdevplus.a
+#  ar -r libdevplus.a DevPlus.o
+
+#  rm DevPlus.o
+
+#  gcc -c DevPlus.cpp -o DevPlus.o
+#  ar -r libdevplus-thread.a
+#  ar -r libdevplus-thread.a DevPlus.o
+
+#  rm DevPlus.o
+
+#  gcc -c DevPlus.cpp -o DevPlus.o -D_EXCLUDE_DB
+#  ar -r libdevplus-nodb.a
+#  ar -r libdevplus-nodb.a DevPlus.o
+
+#  rm DevPlus.o
+
+  mkdir $startdir/pkg/usr
+#  mkdir $startdir/pkg/usr/lib
+  mkdir $startdir/pkg/usr/include
+  mkdir $startdir/pkg/usr/src
+  mkdir $startdir/pkg/usr/src/DevPlus
+
+#  mv $startdir/src/libdevplus.a $startdir/pkg/usr/lib
+#  mv $startdir/src/libdevplus-thread.a $startdir/pkg/usr/lib
+#  mv $startdir/src/libdevplus-nodb.a $startdir/pkg/usr/lib
+  cp $startdir/src/DevPlus.h $startdir/pkg/usr/include
+  mv $startdir/src/DevPlus.h $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/DevPlus.cpp $startdir/pkg/usr/src/DevPlus
+
+  mv $startdir/src/AUTHORS $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/COPYING $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/ChangeLog $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/NEWS $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/README $startdir/pkg/usr/src/DevPlus
+  mv $startdir/src/TODO $startdir/pkg/usr/src/DevPlus
+
+}
+

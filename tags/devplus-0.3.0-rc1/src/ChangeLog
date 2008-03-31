@@ -1,0 +1,234 @@
+
+VERSIONS
+
+This file lists all the changes to each version.  It includes the numerical version number that is used within the source code, and the version label (tag), as well as the date of release if it is known.
+
+300		0.3.0		<In Progress>
+ - Whatever is necessary for DevPlus to be compilable and used for the SafeProxy 
+   project.
+
+225		0.2.25		December 12, 2006
+
+ - Fixes a DpSocket bug that causes the socket to keep the handle open when
+   the other connection has closed.  It was not closing the socket under those 
+   conditions.
+
+220		0.2.20		December 11, 2006.
+ -  Added DpServerInterface::OnAcceptFail() so that we can provide some 
+    logging to the child class when an accept operation fails.
+
+215		0.2.15		December 8, 2006.
+ -  When creating a socket, set the options on it so that we can re-use the 
+ 	socket.  To avoid the TIME_WAIT problem.
+
+210		0.2.10		October 17, 2006.
+ -  Provide functionality in DpLogger.  It will basically write to a log file 
+    whenever it is told to, without running in another thread.  It will block 
+    until the log is written.
+ -  Modified DpThreadObject::Start() so that it is virtual.  We can possibly 
+    have child-classes that need to do something before actually starting the 
+    thread process.   		
+ -  Adding back support for MySQL.  We havent used MySQL for quite some time, 
+ 	and had been using SQLite3 instead.  But because we are doing a project 
+ 	with MySQL we need to bring that code back into line with the rest of the 
+ 	system that has changed somewhat.
+ -  Added ServerInterface::ItemCount() to return the number of thread objects 
+    that have been added to the serverinterface list (to manage).  
+ -  Added DpServerInterface::OnObjectDelete() so that the derived classes of 
+    ServerInterface can control the thread object somewhat when it is being 
+    deleted.  This can be used to keep track of the number of objects, or can 
+    be used to clean up an object that cant do it internally.
+
+200 	0.2.00		October 10, 2006.
+ -  Seperating objects into seperate files that get included, and compiled 
+ 	as an object that is imported into the project at link time.  Linux 
+ 	centric, have not made an attempt to make it work for windows, but that 
+ 	will come whenever I have to write something for the windows environment.
+ 	
+ 	  ** No compatibility with previous versions is maintained, although the 
+ 	  ** objects themselves wont have changed much.
+
+147		0.1.47		September 7, 2006.
+ -  Removed test printf statement from DpHttpServer that happens whenever 
+ 	a new connection is received.
+
+143		0.1.43		August 12, 2006
+ -  DpHttpClient::GetURL() function was not implemented.  
+
+142		0.1.42		August 11, 2006
+ -  Modified DpHttpClient so that parameters are added explicitly to the 
+ 	request so that the actual parameter can be processed for special 
+ 	characters.  Can still request a URL, but it will assume that it has 
+ 	already been processed for special characters and will fail immediately 
+ 	if any invalid ones are detected.  This breaks compatibility with 
+ 	previous versions. 
+ -  DpServerInterface modified so that it is derived from DpThreadObject 
+	rather than DpSocket.  This is because it actually is not really about a 
+	socket, it is more to do with thread (object) management.  Externally the 
+	functionality will not be changed.  It is noted that the DpServerInterface 
+	was originally decoupled from DpThreadObject and derived from DpSocket 
+	BECAUSE we wanted to provide a system where it can provide a server without 
+	threads.  However, by moving the listen functionality to the DpSocket we 
+	can provide single-thread functonality better by doing it custom, rather 
+	than adding this support to an object that is obviously better off by using 
+	threads.
+ -	Moved Listen() function from DpServerInterface back to the DpSocket object 
+	itself.  Although the server object is basically the one that will be 
+	doing the listening, it is still fairly isolated to the DpSocket 
+	functionality itself.  
+
+141		0.1.41		July 29, 2006
+ -	Minor bugfixes to cleanup code and remove compilation warnings.
+ -	Hyper-Active Systems aquired all assets from CJDJ Creations and therefore 
+ 	this version is the first to be released and hosted on the 
+ 	hyper-active.com.au website.
+
+140     0.1.40      October 4, 2005
+ -  Added DpMain object so that standard CtrlBreak and other interrupts can
+    be handled in a standard way.
+ -  Added DpCgiFormData class to provide support for CGI applications.
+ -  Created DpSqlite3 object to interface with the sqlite C api.
+ -  Added DpHttpServer object.
+
+139     0.1.39      August 7, 2005
+ -  Added DpSocket::GetPeerName() so that we can get the IP or network name of
+    the other end of the socket.
+ -  Added some descriptive comments on some member functions in DpSocket that
+    did not have any.
+ -  Modified the DpSocket::Accept(SOCKET) function so that it is virtual and
+    can be over-ridded by child classes.   Most other functions could also be
+    over-ridden, will need to look at it later to see if we should do that.
+
+138     0.1.38      August 3, 2005
+ -  Fixed the Windows specific code that was in DpHttpClient and allow it to
+    be compiled now.  It is no longer being specifically excluded.
+ -  Removed nError variable that is not needed from some DpHttpClient
+    functions.
+
+
+137     0.1.37      June 19, 2005
+ -  Fixed a bug in the DpServerInterface thread function.  It was checking to
+    see if 'time' was zero, which was referring to a function.  This was
+    totally incorrect, and am quite surprised that the compiler didnt notice
+    it.  Anyway, fixed it to check the actual variable, and also put a limit
+    on the number of connections it can receive at a time.  Since the cycle
+    time is 50 miliseconds, and the limit is 100, it is hardly likely that
+    anyone would actually want to use this code an receive more than 2000
+    connections per second.
+
+
+136     0.1.36      June 19, 2005
+ -  Updated and Added DpSqlDB and DpMySqlDB objects back in to handle database
+    access.  The distributed object will contain these, however, the define
+    should be made to remove support for projects that do not want to
+    incorporate database access.  As long as the headers are in the system, it
+    should not provide any problems with compiling.  Have not worked on
+    incorporating the ODBC code in yet.
+ -  Added DpServerInterface::OnIdle virtual function so that derived objects
+    can clean up connections periodically when the thread is idle.
+ -  Adjusted the Cycle time specified for DpServerInterface objects. It was
+    set to 2000 miliseconds, it is now 50 miliseconds with an extra 200 added
+    whenever OnIdle is called locally.
+ -  Changed the DpServerInterface thread function so that it will keep looping
+    as long as there are incoming connections waiting to be accepted.  Previous
+    functionality worked but would only accept one new connection every 2
+    seconds because that is what the cycle time was set for.  This change
+    should drastically affect the number of incoming connections that can be
+    accepted within a specified time.
+ -  Added DpThreadObject::WaitForThread() function so that objects can be
+    closed down properly.  This function will also tell the thread to stop
+    cycling if it is cycle mode.
+    
+    
+135     0.1.35      September 8, 2004
+ -  Removed automatic inclusion of incomplete classes such as the database and
+    Http client classes.
+ -  Added a #ifndef around DpThreadObject if we dont have ThreadBase defined.
+    Because we need that.
+
+
+
+---------------
+Much older versions....
+
+        100 - Initial integration of various modules into the DevPlus libary.
+
+        101 (2004-01-19)
+            - Removed CCriticalFuncton references because that seems to be 
+              MFC only.  
+            - Modified to use RaiseEvent, SetEvent and CRITICAL_SECTION 
+              structures.
+
+        102 (2004-02-03)
+            - Discovered that I dont like the way RaiseEvent and SetEvent
+              work, so I am going to go back to the old way of implementing
+              this except I will use the EnterCriticalSection and 
+              LeaveCriticalSection functions instead of using CCriticalSection
+              object. Previous implementation has not been left in for
+              compatibility.  Current version should work the same and better
+              as previous with no changes needed.
+
+        110 - Initial release of new layout.
+
+        111 - Moved the ASSERT from DevPlus.cpp to DevPlus.h
+
+        120 - Added CSettings object which handles global application settings.
+            - Changed the class names to be unique within DevPlus.  Instead of 
+              CSettings, it is now DpSettings.
+
+        121 - Converted CServerInterface to DpServerInterface.
+            - Converted CSocketX to DpSocketX.
+            - Converted CDataQueue to DpDataQueue
+
+        122 - Create DpLogger object which will be used to log data to files, 
+              console, event viewer, remote log stores, database tables, etc.
+
+        123 - Added DpIniFile class to assist in parsing ini style files.
+
+        124 - Added shell for DpWinService.  No actual functionality provided
+              yet.
+
+        125 - Added DpHttpClient class to provide a HTTP transfer class.  Used 
+              to make HTTP requests and retrieve the results returned.
+
+        126 - Changes socket class from DpSocketX to DpSocket.  No need for the 
+              X now that we have the Dp in front of our classes.
+
+        127 - Added DpTextTools class to provide some text and string handling 
+              tools.  Mainly designed initially to retrieve data from a fully 
+              formatted web-page.
+
+        128 - Modified DpSocket::Send() and DpSocket::Receive() so that it 
+              returns a -1 if the socket is closed (or has an error), or the 
+              amount of data that was transfered.  This should make socket 
+              programing simpler and more obvious.
+
+        129 - Added full functionality for DpWinService.
+            - Added Lock() and Unlock() to DpServerInterface.
+
+        130 - Modified to be used in linux with gcc.  Primary test platform 
+              currently is ArchLinux.
+            - Modified DpThreadObject to use pthreads when compiled with 
+              GNU C.
+            - Modified DpReadWriteLock to use pthread_mutex when compiled with 
+              GNU C.
+            - Added DP_SINGLETHREAD (not backport protected) define to be 
+              used that indicates that everything will be run in a single
+              thread (no multi-threading at all). This means that 
+              DpReadWriteLock and any class that uses it will not be 
+              available.
+            - Added DpThreadBase class to provide some common functionality that 
+              is required by some different classes that actively use or require 
+              threads.
+
+        131 - Added DpDataQueue::FindChar();
+
+        132 - Completed some missing functionality in DpIniFile.
+
+        133 - Minor changes made to ensure portability with windows.
+
+        134 - Updated licence information in this file.
+            - Implemented the database classes.  Most of the code was already in 
+              the file but did not compile properly.
+
+

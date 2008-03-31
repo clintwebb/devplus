@@ -1,0 +1,120 @@
+//------------------------------------------------------------------------------
+//  CJDJ Creations
+//  DevPlus C++ Library.
+//  
+/***************************************************************************
+ *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
+ *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
+ *   devplus@hyper-active.com.au                                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+ 
+ 
+/*
+      ****************************************************************
+      **                                                            **
+      **  NOTE                                                      **
+      **  ----                                                      **
+      **                                                            **
+      **  A commercial licence of this library is available if the  **
+      **  GPL licence is not suitable for your task.                **
+      **                                                            **
+      **  This means that if you are developing a project and       **
+      **  intend to release it under the GPL or equivilent , you do **
+      **  NOT need to purchase a commercial licence.                **
+      **                                                            **
+      **  But if you do not intend to distribute your product under **
+      **  the GPL, you are required to purchase a commercial        **
+      **  licence.  This licence allows you to use this DevPlus     **
+      **  library without providing the source.                     **
+      **                                                            **
+      **  You can purchase a commercial licence at:                 **
+      **    http://hyper-active.com.au/products/devplus/            **
+      **                                                            **
+      ****************************************************************
+*/ 
+ 
+
+#ifndef __DP_SETTINGS_H
+#define __DP_SETTINGS_H
+
+
+#include <DevPlus.h>
+#include <DpLock.h>
+
+//------------------------------------------------------------------------------
+// DpSettings - generic global settings holder.  Useful for accessing settings
+// information from multiple threads.  Not really designed to transfer transient
+// information from one thread to another.
+//------------------------------------------------------------------------------
+
+enum SettingType {
+    TYPE_EMPTY,
+    TYPE_INTEGER,
+    TYPE_STRING,
+    TYPE_CHAR,
+    TYPE_UNSIGNED,
+    TYPE_PTR
+};
+
+
+union SettingsUnion {
+    void *pointer;
+    char *string;
+    int  integer;
+    unsigned int uint;
+    char ch;
+};
+
+
+struct SettingsData {
+    enum SettingType eType;
+    union SettingsUnion *pData;
+    int nItems;
+    char *szName;
+};  
+
+
+class DpSettings : public DpLock
+{
+    public:
+        DpSettings();
+        virtual ~DpSettings();
+        
+        bool Set(char *name, char *value, int index=0);
+        bool Set(char *name, int   value, int index=0);
+        
+        bool Get(char *name, char  *value, int index=0);
+        bool Get(char *name, char **value, int index=0);
+        bool Get(char *name, int   *value, int index=0);
+        
+    protected:
+    
+    private:
+        static int _nInstances;
+        static int _nItems;
+        static SettingsData *_pDataList;
+        
+        int FindName(char *name);
+        int CreateName(char *name);
+        bool VerifyIndex(int entry, int index);
+        void CreateIndex(int entry, int index);
+
+};
+
+
+#endif
