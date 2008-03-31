@@ -3,10 +3,15 @@ VERSIONS
 
 This file lists all the changes to each version.  It includes the numerical version number that is used within the source code, and the version label (tag), as well as the date of release if it is known.
 
+300		0.3.0		<In Progress>
+ - Whatever is necessary for DevPlus to be compilable and used for the SafeProxy 
+   project.
+
 225		0.2.25		December 12, 2006
- -  Fixes a DpSocket bug that causes the socket to keep the handle open when 
- 	the other connection has closed.  It was not closing the socket under 
- 	those conditions.
+
+ - Fixes a DpSocket bug that causes the socket to keep the handle open when
+   the other connection has closed.  It was not closing the socket under those 
+   conditions.
 
 220		0.2.20		December 11, 2006.
  -  Added DpServerInterface::OnAcceptFail() so that we can provide some 

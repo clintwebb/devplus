@@ -3,7 +3,7 @@
 //  DevPlus C++ Library.
 //  
 /***************************************************************************
- *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
+ *   Copyright (C) 2006-2008 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
  *   devplus@hyper-active.com.au                                           *
  *                                                                         *
@@ -67,11 +67,11 @@
 //-----------------------------------------------------------------------------
 
 #ifndef SOCKET
-    #define SOCKET int
+	#define SOCKET int
 #endif
 
 #ifndef INVALID_SOCKET
-    #define INVALID_SOCKET -1
+	#define INVALID_SOCKET -1
 #endif
 
 class DpSocket
@@ -81,47 +81,47 @@ class DpSocket
 		// Socket handle.
 		SOCKET _nSocket;                       
 	
-    public:
-        DpSocket();                             // Constructor.
-        virtual ~DpSocket();                    // Deconstructor.
+	public:
+		DpSocket();                             // Constructor.
+		virtual ~DpSocket();                    // Deconstructor.
 
 		// Initialize the socket system.  not needed in linux, but necessary in windows.
-        void Init(void);
+		void Init(void);
 
 		// Used for listening sockets, check to see if a new connection is 
 		// waiting, if so accept it and return the socket.
-        SOCKET Accept();                        
+		SOCKET Accept();                        
 		
 		// Accept and use the socket indicated.
-        virtual void Accept(SOCKET nSocket);    
+		virtual void Accept(SOCKET nSocket);    
 		
 		// detach a socket, remove it from this object, doesn't do any 
 		// operations on the socket.
-        SOCKET Detach();                        
+		SOCKET Detach();                        
 
 		// connect to the specified host and port, returning true if 
 		// connected.
-        bool Connect(char *szHost, int nPort);  
+		bool Connect(const char *szHost, int nPort);  
 		
 		// send data over the socket, return the number of chars sent, -1 if 
 		// error (which could mean WOULDBLOCK), 0 if connection was closed.
-        int Send(char *data, int len);
+		int Send(char *data, int len);
 		
 		// receive data on the socket.  return the number of chars received, 
 		// -1 if error (which could mean WOULDBLOCK), 0 if connection was 
 		// -closed.
-        int Receive(char *data, int len);       
+		int Receive(char *data, int len);       
 		
 		virtual bool Listen(int nPort);
         
-        virtual void GetPeerName(char *pStr, int nMax);
+		virtual void GetPeerName(char *pStr, int nMax);
         
-        // Close the connection.
-        void Close();                           
-        void Disconnect() { Close(); }
-        
+		// Close the connection.
+		void Close();                           
+		void Disconnect() { Close(); }
+		
 		// return true if we have a socket handle.
-        bool IsConnected();                     
+		bool IsConnected();                     
 
 		// set the socket to Non blocking mode, which means that when 
 		// receiving or sending data, the function will not wait until it is 
@@ -129,11 +129,11 @@ class DpSocket
 		// will continue on with a -1.
 		void SetNonBlocking();
 
-    private:
+	private:
 		
 		// resolve a name (or ip) and port into a socket structure that can be 
 		// used to connect to the remote server.
-		int Resolve(const char szAddr[], int iPort, struct sockaddr_in *pSin, char *szType="A");      
+		int Resolve(const char *szAddr, int iPort, struct sockaddr_in *pSin, const char *szType="A");      
 		
 };
 

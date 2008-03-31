@@ -4,7 +4,7 @@
 
 
 /***************************************************************************
- *   Copyright (C) 2006-2007 by Hyper-Active Systems,,,                    *
+ *   Copyright (C) 2006-2008 by Hyper-Active Systems,,,                    *
  *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
  *   devplus@hyper-active.com.au                                           *
  *                                                                         *
@@ -33,7 +33,7 @@
 //      functions.  This is rather annoying and really quite stupid, but that
 //      is what you get I suppose.
 #ifdef _MSC_VER
-    #include "stdafx.h"
+	#include "stdafx.h"
 #endif
 //-----------------------------------------------------------------------------
 
@@ -66,17 +66,17 @@
 // CJW: Constructor.  Initialise the socket.
 DpSocket::DpSocket()
 {
-    _nSocket = 0;
+	_nSocket = 0;
 }
 
 //-----------------------------------------------------------------------------
 // CJW: Deconstructor.  If we still have a connected socket, then close it.
 DpSocket::~DpSocket()
 {
-    if (_nSocket != 0) {
-        Close();
-    }
-    ASSERT(_nSocket == 0);
+	if (_nSocket != 0) {
+		Close();
+	}
+	ASSERT(_nSocket == 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -88,15 +88,15 @@ DpSocket::~DpSocket()
 //          might already have been done.
 void DpSocket::Init(void)
 {
-    #ifdef __GNUC__
-        // In Linux, we dont need to initialise the socket library, it is
-        // built in to the kernel.
-    #else
-        WORD wVersionRequested;
-        WSADATA wsaData;
-        wVersionRequested = MAKEWORD( 2, 2 );
-        WSAStartup( wVersionRequested, &wsaData );
-    #endif
+	#ifdef __GNUC__
+		// In Linux, we dont need to initialise the socket library, it is
+		// built in to the kernel.
+	#else
+		WORD wVersionRequested;
+		WSADATA wsaData;
+		wVersionRequested = MAKEWORD( 2, 2 );
+		WSAStartup( wVersionRequested, &wsaData );
+	#endif
 }
 
 
@@ -104,63 +104,63 @@ void DpSocket::Init(void)
 //-----------------------------------------------------------------------------
 // CJW: In order to connect to a remote host, we have to resolve the name or IP
 //      address and port into a structure.
-int DpSocket::Resolve(const char szAddr[], int iPort, struct sockaddr_in *pSin, char *szType)
+int DpSocket::Resolve(const char *szAddr, int iPort, struct sockaddr_in *pSin, const char *szType)
 {
-    unsigned long ulAddress;
-    struct hostent *hp;
-
-    ASSERT(szAddr != NULL && szAddr[0] != '\0' && iPort > 0);
+	unsigned long ulAddress;
+	struct hostent *hp;
+	
+	ASSERT(szAddr != NULL && szAddr[0] != '\0' && iPort > 0);
 	ASSERT(pSin != NULL && szType != NULL);
-    
-    // First, assign the family and port.
-    pSin->sin_family = AF_INET;
-    pSin->sin_port = htons(iPort);
+		
+	// First, assign the family and port.
+	pSin->sin_family = AF_INET;
+	pSin->sin_port = htons(iPort);
+	
+	// Look up by standard notation (xxx.xxx.xxx.xxx) first.
+	ulAddress = inet_addr(szAddr);
+	if ( ulAddress != (unsigned long)(-1) )  {
+		// Success. Assign, and we're done.  Since it was an actual IP address, then we dont do any DNS lookup for that, so we cant do any checking for any other address type (such as MX).
+		pSin->sin_addr.s_addr = ulAddress;
+		return 0;
+	}
 
-    // Look up by standard notation (xxx.xxx.xxx.xxx) first.
-    ulAddress = inet_addr(szAddr);
-    if ( ulAddress != (unsigned long)(-1) )  {
-        // Success. Assign, and we're done.  Since it was an actual IP address, then we dont do any DNS lookup for that, so we cant do any checking for any other address type (such as MX).
-        pSin->sin_addr.s_addr = ulAddress;
-        return 0;
-    }
-
-    // If that didn't work, try to resolve host name by DNS.
-    hp = gethostbyname(szAddr);
-    if( hp == NULL ) {
-        // Didn't work. We can't resolve the address.
-        return -1;
-    }
-
-    // Otherwise, copy over the converted address and return success.
-    memcpy( &(pSin->sin_addr.s_addr), &(hp->h_addr[0]), hp->h_length);
-    return 0;
+	// If that didn't work, try to resolve host name by DNS.
+	hp = gethostbyname(szAddr);
+	if( hp == NULL ) {
+		// Didn't work. We can't resolve the address.
+		return -1;
+	}
+	
+	// Otherwise, copy over the converted address and return success.
+	memcpy( &(pSin->sin_addr.s_addr), &(hp->h_addr[0]), hp->h_length);
+	return 0;
 }
 
 
 //-----------------------------------------------------------------------------
 // Connect to the host and port.  Return true if we are connected.  Returns
 // false if we couldnt connect.
-bool DpSocket::Connect(char *szHost, int nPort)
+bool DpSocket::Connect(const char *szHost, int nPort)
 {
-    bool bConnected=false;
-    struct sockaddr_in sin;
-    int on = 1;
-
-    ASSERT(szHost != NULL);
-    ASSERT(nPort > 0);
-    ASSERT(_nSocket == 0);
-
-    if (Resolve(szHost,nPort,&sin) >= 0) {
-        // CJW: Create the socket
-        _nSocket = socket(AF_INET,SOCK_STREAM,0);
-        if (_nSocket >= 0) {
-        
-       		// set the socket options so that we can avoid the TIME_WAIT annoying problem.
-		    if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
-                Close();
-                bConnected = false;
-            }
-            else {
+	bool bConnected=false;
+	struct sockaddr_in sin;
+	int on = 1;
+	
+	ASSERT(szHost != NULL);
+	ASSERT(nPort > 0);
+	ASSERT(_nSocket == 0);
+	
+	if (Resolve(szHost,nPort,&sin) >= 0) {
+		// CJW: Create the socket
+		_nSocket = socket(AF_INET,SOCK_STREAM,0);
+		if (_nSocket >= 0) {
+			
+				// set the socket options so that we can avoid the TIME_WAIT annoying problem.
+			if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
+				Close();
+				bConnected = false;
+			}
+			else {
 				// CJW: Connect to the server
 				if (connect(_nSocket, (struct sockaddr*)&sin, sizeof(struct sockaddr)) >= 0) {
 					SetNonBlocking();   // and set the socket for non-blocking mode.
@@ -171,10 +171,10 @@ bool DpSocket::Connect(char *szHost, int nPort)
 					bConnected = false;
 				}
 			}
-        }
-    }
-
-    return(bConnected);
+		}
+	}
+	
+	return(bConnected);
 }
 
 
@@ -183,18 +183,18 @@ bool DpSocket::Connect(char *szHost, int nPort)
 //      socket value.
 void DpSocket::Close()
 {
-    int nResult;
+	int nResult;
     
 	if (_nSocket > 0) {
     
 #ifdef __GNUC__
-        nResult = close(_nSocket);
+		nResult = close(_nSocket);
 #else
-        nResult = closesocket(_nSocket);
+		nResult = closesocket(_nSocket);
 #endif
-        ASSERT(nResult == 0);
-        _nSocket = 0;
-    }
+		ASSERT(nResult == 0);
+		_nSocket = 0;
+	}
 }
 
 
@@ -447,21 +447,21 @@ bool DpSocket::Listen(int nPort)
 	bool bReturn = false;
 	int on = 1;
 
-    // will not work with a 0 or a negative number
+	// will not work with a 0 or a negative number
 	ASSERT(nPort > 0);
 	ASSERT(_nSocket == 0);
 
-    // CJW: Create the socket place holder
+	// CJW: Create the socket place holder
 	_nSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_nSocket > 0) {
 	
-	    if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
+		if ( setsockopt(_nSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1) {
 			#ifdef __GNUC__
-		        close(_nSocket);
+				close(_nSocket);
 			#else
-            	closesocket(_nSocket);
+				closesocket(_nSocket);
 			#endif
-            _nSocket = 0;
+			_nSocket = 0;
 		}
 		else {
 	

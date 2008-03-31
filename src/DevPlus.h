@@ -3,8 +3,8 @@
 //  DevPlus C++ Library.
 //
 /***************************************************************************
- *   Copyright (C) 2003-2005 by Clinton Webb,,,                            *
- *   devplus@cjdj.org                                                      *
+ *   Copyright (C) 2003-2008 by Clinton Webb,,,                            *
+ *   devplus@hyper-active.com.au                                           *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,7 +42,7 @@
       **  library without providing the source.                     **
       **                                                            **
       **  You can purchase a commercial licence at:                 **
-      **    http://cjdj.org/products/devplus/                       **
+      **    http://hyper-active.com.au/products/devplus/            **
       **                                                            **
       ****************************************************************
 */ 
@@ -73,7 +73,7 @@
 #define __DEVPLUS_H
 
 
-#define DEVPLUS_VERSION	225
+#define DEVPLUS_VERSION	300
 
 //------------------------------------------------------------------------------
 // Provide our assertion mapping function.  This would also depend eventually on 
