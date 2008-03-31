@@ -87,9 +87,9 @@ class DpSqlite3
 		virtual ~DpSqlite3();
 
 		bool Open(char *szFilename);
-		void ExecuteNR(char *query, ...);
-		DpSqlite3Result * Execute(char *query, ...);
-		DpSqlite3Result * ExecuteStr(char *query);
+		void ExecuteNR(const char *query, ...);
+		DpSqlite3Result * Execute(const char *query, ...);
+		DpSqlite3Result * ExecuteStr(const char *query);
 		
 		int LastResultCode(void) { return _nLastResultCode; }
 		

@@ -67,7 +67,7 @@ DpSqlite3::~DpSqlite3()
 // CJW: Open the database.  If it doesnt exist, then we will create it.  If we 
 // 		cannot create it, then we will return false, otherwise we will return 
 // 		true.
-bool DpSqlite3::Open(char *szFilename)
+bool DpSqlite3::Open(const char *szFilename)
 {
 	int rc;
 	
@@ -96,7 +96,7 @@ bool DpSqlite3::Open(char *szFilename)
 // 		going to bother returning a result.   We will use the sqlite3 functions 
 // 		to convert the format string and the arguments into a fully formed 
 // 		string.
-void DpSqlite3::ExecuteNR(char *query, ...)
+void DpSqlite3::ExecuteNR(const char *query, ...)
 {
 	va_list args;
 	char *ptr;
@@ -143,7 +143,7 @@ void DpSqlite3::ExecuteNR(char *query, ...)
 // CJW: Execute the command and return a result object.  We will completely 
 // 		process the command now, and get all the data from the query.  The data 
 // 		will be stored directly and pulled out as needed.
-DpSqlite3Result * DpSqlite3::Execute(char *query, ...)
+DpSqlite3Result * DpSqlite3::Execute(const char *query, ...)
 {
 	va_list args;
 	char *ptr;
@@ -171,7 +171,7 @@ DpSqlite3Result * DpSqlite3::Execute(char *query, ...)
 // NOTE: If the database is busy or locked, then we will wait 1 second, and then 
 // 		 try it again.  There is no time-limit on the wait, it will wait 
 // 		 forever.
-DpSqlite3Result * DpSqlite3::ExecuteStr(char *query)
+DpSqlite3Result * DpSqlite3::ExecuteStr(const char *query)
 {
 	bool bLoop;
 	int rc;
