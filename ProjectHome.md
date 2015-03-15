@@ -1,0 +1,1 @@
+Contains C++ objects to easily provide Thread handling, socket (server and client) handling, HTTP (server and client) interaction and many other features.
